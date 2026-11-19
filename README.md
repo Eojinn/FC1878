@@ -159,13 +159,37 @@ application-local.yaml
 
 <br/>
 
+## 🔌 API 목록 (buildup-football.com 기능 대응)
+
+| 기능 | Method | URL | 인증 |
+|---|---|---|---|
+| 회원가입 / 로그인(JWT) | POST | `/api/auth/signup`, `/api/auth/login` | - |
+| 내 정보 / 좋아하는 팀 팔로우 | GET / PUT | `/api/members/me`, `/api/members/me/favorite-team` | ✅ |
+| 리그 목록 | GET | `/api/leagues` | - |
+| 경기일정 (날짜·리그·팀 필터) | GET | `/api/fixtures?date=2026-11-22&leagueId=1&teamId=3` | - |
+| 경기 상세 | GET | `/api/fixtures/{id}` | - |
+| 순위표 | GET | `/api/leagues/{id}/standings?season=2026` | - |
+| 승부예측 현황 (홈/무/원정 %) | GET | `/api/fixtures/{id}/predictions` | - |
+| 승부예측 참여 | POST | `/api/fixtures/{id}/predictions` `{"pick":"HOME"}` | ✅ |
+| 포인트 랭킹 / 내 순위 | GET | `/api/rankings`, `/api/members/me/rank` | - / ✅ |
+| 커뮤니티 글 | GET/POST/PUT/DELETE | `/api/posts`, `/api/posts/{id}` | 쓰기 ✅ |
+| 댓글 | GET/POST/DELETE | `/api/posts/{id}/comments`, `/api/comments/{id}` | 쓰기 ✅ |
+| 실시간 스코어 (STOMP) | WS | `/ws` → 구독 `/topic/live`, `/topic/fixtures/{id}` | - |
+
+경기 데이터는 [API-Football](https://www.api-football.com/) 에서 가져옵니다.
+`FOOTBALL_API_KEY` 와 `FOOTBALL_API_ENABLED=true` 환경변수를 주면 10분마다 경기, 매일 05시에 순위가 동기화되고,
+종료된 경기는 승부예측이 자동 정산(적중 시 +10P)됩니다.
+
+<br/>
+
 ## 🗺️ 로드맵
 
 - [x] Spring Boot 프로젝트 뼈대 생성
 - [x] GitHub 저장소 연결
-- [ ] 패키지 구조 설계 (domain / controller / service / repository)
-- [ ] 회원가입 · 로그인 (Spring Security + JWT)
-- [ ] 팀 · 경기 · 게시판 도메인 설계
+- [x] 패키지 구조 설계 (domain / controller / service / repository)
+- [x] 회원가입 · 로그인 (Spring Security + JWT)
+- [x] 팀 · 경기 · 게시판 도메인 설계
+- [ ] 뉴스 · 이적시장 · 해외파 선수 · 팀빌더 · 전술판
 - [ ] React 프론트엔드 연동
 - [ ] Swagger(springdoc-openapi) API 문서화
 - [ ] Docker 이미지 빌드 및 AWS 배포

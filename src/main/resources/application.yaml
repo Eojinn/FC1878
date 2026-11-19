@@ -1,3 +1,42 @@
 spring:
   application:
     name: FC1878
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate        # 테이블은 Flyway가 만들고, JPA는 검증만
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+  flyway:
+    enabled: true
+  docker:
+    compose:
+      lifecycle-management: start-only
+
+jwt:
+  # 운영에서는 반드시 환경변수 JWT_SECRET 으로 32바이트 이상 랜덤 값 주입
+  secret: ${JWT_SECRET:local-dev-secret-key-change-me-please-32bytes!!}
+  access-token-validity-seconds: 3600
+
+football:
+  api:
+    enabled: ${FOOTBALL_API_ENABLED:false}   # API 키를 넣고 true 로 바꾸면 자동 동기화 시작
+    base-url: https://v3.football.api-sports.io
+    key: ${FOOTBALL_API_KEY:}
+    season: 2026
+    # API-Football 리그 ID: EPL 39, 라리가 140, 세리에A 135, 분데스 78, 리그1 61, UCL 2, K리그1 292
+    league-ids: 39,140,135,78,61,2,292
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:3000
+  prediction:
+    win-point: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
