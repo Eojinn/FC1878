@@ -26,13 +26,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * dev 프로필에서 DB가 비어 있을 때만 화면 확인용 샘플 데이터를 넣는다.
  * 순위·스코어·포인트 등 모든 수치는 가짜 데이터이며, 외부 API 동기화가 켜지면 실제 데이터로 덮어써진다.
- * 리그/팀 ID 와 엠블럼 URL 은 API-Football 기준.
+ * 리그/팀 ID 와 엠블럼 URL 은 API-Football 기준 (팀 목록은 SampleTeams).
  */
 @Slf4j
 @Component
@@ -55,7 +58,8 @@ public class DevDataSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     private final Map<Integer, League> leagues = new HashMap<>();
-    private final Map<Integer, Team> teams = new HashMap<>();
+    private final Map<String, Team> teamsByKo = new HashMap<>();
+    private final Map<Integer, List<Team>> leagueTeams = new LinkedHashMap<>();
 
     @Override
     @Transactional
@@ -63,64 +67,61 @@ public class DevDataSeeder implements CommandLineRunner {
         if (leagueRepository.count() > 0) return;
         log.info("[dev] 샘플 데이터를 생성합니다.");
 
-        league(39, "Premier League", "프리미어리그", "England");
-        league(140, "La Liga", "라리가", "Spain");
-        league(135, "Serie A", "세리에A", "Italy");
-        league(78, "Bundesliga", "분데스리가", "Germany");
-        league(61, "Ligue 1", "리그1", "France");
-        league(2, "UEFA Champions League", "챔피언스리그", "World");
-
-        team(42, "Arsenal", "아스널");
-        team(40, "Liverpool", "리버풀");
-        team(50, "Manchester City", "맨시티");
-        team(49, "Chelsea", "첼시");
-        team(47, "Tottenham", "토트넘");
-        team(34, "Newcastle", "뉴캐슬");
-        team(51, "Brighton", "브라이튼");
-        team(529, "Barcelona", "바르셀로나");
-        team(541, "Real Madrid", "레알 마드리드");
-        team(533, "Villarreal", "비야레알");
-        team(536, "Sevilla", "세비야");
-        team(157, "Bayern München", "바이에른 뮌헨");
-        team(160, "SC Freiburg", "프라이부르크");
-        team(505, "Inter", "인테르");
-        team(496, "Juventus", "유벤투스");
-        team(85, "Paris Saint Germain", "파리 생제르맹");
-        team(81, "Marseille", "마르세유");
+        // 리그 + 팀 (SampleTeams 참고)
+        int syntheticId = 9_100_000; // API ID를 모르는 팀용 임시 externalId
+        for (SampleTeams.L l : SampleTeams.LEAGUES) {
+            league(l.extId(), l.name(), l.ko(), l.country());
+            List<Team> teamList = new ArrayList<>();
+            for (SampleTeams.T t : l.teams()) {
+                teamList.add(team(t.extId() > 0 ? t.extId() : syntheticId++, t.name(), t.ko(), t.extId() > 0));
+            }
+            leagueTeams.put(l.extId(), teamList);
+        }
 
         LocalDateTime now = TimeUtil.nowKst().truncatedTo(ChronoUnit.HOURS);
         int id = 900_001; // 실제 API fixture ID와 겹치지 않도록 큰 값 사용
 
-        Fixture done = fixture(id++, 39, 40, 51, "Regular Season - 13", now.minusDays(1).withHour(23),
+        Fixture done = fixture(id++, 39, "리버풀", "브라이튼", "Regular Season - 13", now.minusDays(1).withHour(23),
                 FixtureStatus.FINISHED, 90, 2, 1);
         done.markSettled();
-        fixture(id++, 39, 42, 34, "Regular Season - 13", now.minusHours(1), FixtureStatus.LIVE, 67, 1, 1);
-        Fixture featured = fixture(id++, 39, 47, 49, "Regular Season - 13", now.plusHours(3),
-                FixtureStatus.SCHEDULED, null, null, null);
-        fixture(id++, 39, 50, 51, "Regular Season - 14", now.plusDays(1).withHour(21),
-                FixtureStatus.SCHEDULED, null, null, null);
-        fixture(id++, 140, 529, 533, "Regular Season - 14", now.plusDays(1).withHour(22),
-                FixtureStatus.SCHEDULED, null, null, null);
-        fixture(id++, 78, 157, 160, "Regular Season - 12", now.plusDays(1).withHour(23).withMinute(30),
-                FixtureStatus.SCHEDULED, null, null, null);
-        fixture(id++, 140, 541, 536, "Regular Season - 14", now.plusDays(2).withHour(4),
-                FixtureStatus.SCHEDULED, null, null, null);
-        fixture(id++, 135, 505, 496, "Regular Season - 13", now.plusDays(2).withHour(2).withMinute(45),
-                FixtureStatus.SCHEDULED, null, null, null);
-        fixture(id, 61, 85, 81, "Regular Season - 13", now.plusDays(3).withHour(4).withMinute(45),
+        fixture(id++, 39, "아스널", "뉴캐슬", "Regular Season - 13", now.minusHours(1), FixtureStatus.LIVE, 67, 1, 1);
+        Fixture featured = fixture(id++, 39, "토트넘", "첼시", "Regular Season - 13", now.plusHours(3),
                 FixtureStatus.SCHEDULED, null, null, null);
 
-        // EPL 순위 (샘플 수치)
-        int[][] table = {
-                {42, 12, 9, 1, 2, 24, 9}, {40, 12, 8, 2, 2, 25, 12}, {50, 12, 8, 1, 3, 26, 14},
-                {49, 12, 6, 4, 2, 21, 13}, {47, 12, 6, 3, 3, 22, 16}, {34, 12, 6, 2, 4, 18, 15},
-                {51, 12, 5, 3, 4, 19, 18}};
-        String[] forms = {"WWDWW", "WLWWD", "WWLWW", "DWDWL", "WDLWW", "LWWDW", "DWLLW"};
-        for (int i = 0; i < table.length; i++) {
-            int[] r = table[i];
-            Standing s = Standing.of(leagues.get(39), teams.get(r[0]), SEASON);
-            s.update(i + 1, r[1], r[2], r[3], r[4], r[5], r[6], r[2] * 3 + r[3], forms[i]);
-            standingRepository.save(s);
+        // 나머지 샘플 경기: 내일~모레에 나눠 배치
+        int[] hours = {21, 23, 2, 4};
+        int slot = 0;
+        for (var e : SampleTeams.MATCHUPS.entrySet()) {
+            for (String[] m : e.getValue()) {
+                if (m[0].equals("토트넘")) continue; // 위에서 featured 로 생성
+                LocalDateTime kickoff = now.plusDays(1 + slot % 2).withHour(hours[slot % hours.length]);
+                fixture(id++, e.getKey(), m[0], m[1], "Regular Season - 13", kickoff,
+                        FixtureStatus.SCHEDULED, null, null, null);
+                slot++;
+            }
+        }
+
+        // 리그별 순위표 (가짜 수치: 목록 순서대로 승점이 높게)
+        java.util.Random rnd = new java.util.Random(1878);
+        String results = "WWWDL";
+        for (var e : leagueTeams.entrySet()) {
+            List<Team> list = e.getValue();
+            if (list.isEmpty()) continue;
+            int played = e.getKey() == 292 ? 33 : 12;
+            int maxPts = played * 3 - played / 2;
+            for (int i = 0; i < list.size(); i++) {
+                int pts = Math.max(1, maxPts - i * (maxPts / list.size()) - rnd.nextInt(2));
+                int win = Math.min(played, pts / 3);
+                int draw = Math.min(played - win, pts - win * 3);
+                int lose = played - win - draw;
+                int gf = win * 2 + draw + rnd.nextInt(5);
+                int ga = lose * 2 + draw + rnd.nextInt(5);
+                StringBuilder form = new StringBuilder();
+                for (int f = 0; f < 5; f++) form.append(results.charAt(rnd.nextInt(results.length())));
+                Standing s = Standing.of(leagues.get(e.getKey()), list.get(i), SEASON);
+                s.update(i + 1, played, win, draw, lose, gf, ga, win * 3 + draw, form.toString());
+                standingRepository.save(s);
+            }
         }
 
         // 샘플 회원 (비밀번호: password1234!)
@@ -158,15 +159,17 @@ public class DevDataSeeder implements CommandLineRunner {
         leagues.put(extId, leagueRepository.save(l));
     }
 
-    private void team(int extId, String name, String ko) {
-        Team t = Team.of(extId, name, TEAM_LOGO.formatted(extId));
+    private Team team(int extId, String name, String ko, boolean hasLogo) {
+        Team t = Team.of(extId, name, hasLogo ? TEAM_LOGO.formatted(extId) : null);
         t.changeKoreanName(ko);
-        teams.put(extId, teamRepository.save(t));
+        Team saved = teamRepository.save(t);
+        teamsByKo.put(ko, saved);
+        return saved;
     }
 
-    private Fixture fixture(int extId, int league, int home, int away, String round, LocalDateTime kickoff,
+    private Fixture fixture(int extId, int league, String homeKo, String awayKo, String round, LocalDateTime kickoff,
                             FixtureStatus status, Integer elapsed, Integer hs, Integer as) {
-        Fixture f = Fixture.of(extId, leagues.get(league), teams.get(home), teams.get(away), SEASON);
+        Fixture f = Fixture.of(extId, leagues.get(league), teamsByKo.get(homeKo), teamsByKo.get(awayKo), SEASON);
         f.updateState(round, kickoff, status, elapsed, hs, as, null, null);
         return fixtureRepository.save(f);
     }
