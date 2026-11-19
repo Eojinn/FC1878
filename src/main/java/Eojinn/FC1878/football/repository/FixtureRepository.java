@@ -33,4 +33,13 @@ public interface FixtureRepository extends JpaRepository<Fixture, Long> {
     Optional<Fixture> findDetail(@Param("id") Long id);
 
     List<Fixture> findByStatusAndSettledFalse(FixtureStatus status);
+
+    @Query("""
+            select f from Fixture f
+              join fetch f.league join fetch f.homeTeam join fetch f.awayTeam
+            where f.status = :status and f.kickoffAt > :now
+            order by f.kickoffAt
+            """)
+    List<Fixture> findUpcoming(@Param("status") FixtureStatus status, @Param("now") LocalDateTime now,
+                               org.springframework.data.domain.Pageable pageable);
 }

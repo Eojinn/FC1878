@@ -12,15 +12,15 @@ public final class FootballDtos {
     private FootballDtos() {
     }
 
-    public record LeagueResponse(Long id, String name, String country, String logoUrl) {
+    public record LeagueResponse(Long id, Integer externalId, String name, String country, String logoUrl) {
         public static LeagueResponse from(League l) {
-            return new LeagueResponse(l.getId(), l.getName(), l.getCountry(), l.getLogoUrl());
+            return new LeagueResponse(l.getId(), l.getExternalId(), l.getDisplayName(), l.getCountry(), l.getLogoUrl());
         }
     }
 
     public record TeamResponse(Long id, String name, String logoUrl) {
         public static TeamResponse from(Team t) {
-            return new TeamResponse(t.getId(), t.getName(), t.getLogoUrl());
+            return new TeamResponse(t.getId(), t.getDisplayName(), t.getLogoUrl());
         }
     }
 

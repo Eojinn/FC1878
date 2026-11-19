@@ -34,6 +34,18 @@ public class FootballController {
         return queryService.fixturesByDate(target, leagueId, teamId);
     }
 
+    @GetMapping("/fixtures/featured")
+    public org.springframework.http.ResponseEntity<FixtureResponse> featured() {
+        return queryService.featured().map(org.springframework.http.ResponseEntity::ok)
+                .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
+    }
+
+    /** 좋아하는 팀 선택용 팀 목록 */
+    @GetMapping("/teams")
+    public List<TeamResponse> teams() {
+        return queryService.teams();
+    }
+
     @GetMapping("/fixtures/{id}")
     public FixtureResponse fixture(@PathVariable Long id) {
         return queryService.fixture(id);

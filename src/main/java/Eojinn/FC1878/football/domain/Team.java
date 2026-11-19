@@ -21,6 +21,10 @@ public class Team extends BaseTimeEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
+    /** 화면 표시용 한글 이름 (없으면 name 사용) */
+    @Column(length = 100)
+    private String koreanName;
+
     private String logoUrl;
 
     public static Team of(Integer externalId, String name, String logoUrl) {
@@ -28,6 +32,14 @@ public class Team extends BaseTimeEntity {
         t.externalId = externalId;
         t.update(name, logoUrl);
         return t;
+    }
+
+    public void changeKoreanName(String koreanName) {
+        this.koreanName = koreanName;
+    }
+
+    public String getDisplayName() {
+        return koreanName != null && !koreanName.isBlank() ? koreanName : name;
     }
 
     public void update(String name, String logoUrl) {

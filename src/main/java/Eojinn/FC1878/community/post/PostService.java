@@ -20,11 +20,19 @@ public class PostService {
     private final MemberService memberService;
 
     @Transactional(readOnly = true)
-    public PageResponse<PostSummaryResponse> list(PostCategory category, int page, int size) {
-        PageRequest pageable = PageRequest.of(page, Math.min(size, 50), Sort.by(Sort.Direction.DESC, "id"));
-        Page<Post> posts = category == null
-                ? postRepository.findByDeletedFalse(pageable)
-                : postRepository.findByCategoryAndDeletedFalse(category, pageable);
+    public PageResponse<PostSummaryResponse> list(PostCategory category, String keyword, String sort, int page, int size) {
+        Sort order = "popular".equals(sort)
+                ? Sort.by(Sort.Order.desc("viewCount"), Sort.Order.desc("id"))
+                : Sort.by(Sort.Direction.DESC, "id");
+        PageRequest pageable = PageRequest.of(page, Math.min(size, 50), order);
+        Page<Post> posts;
+        if (keyword != null && !keyword.isBlank()) {
+            posts = postRepository.findByTitleContainingAndDeletedFalse(keyword.trim(), pageable);
+        } else if (category != null) {
+            posts = postRepository.findByCategoryAndDeletedFalse(category, pageable);
+        } else {
+            posts = postRepository.findByDeletedFalse(pageable);
+        }
         return PageResponse.from(posts.map(PostSummaryResponse::from));
     }
 

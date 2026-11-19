@@ -16,5 +16,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByCategoryAndDeletedFalse(PostCategory category, Pageable pageable);
 
     @EntityGraph(attributePaths = "author")
+    Page<Post> findByTitleContainingAndDeletedFalse(String keyword, Pageable pageable);
+
+    @EntityGraph(attributePaths = "author")
     Optional<Post> findByIdAndDeletedFalse(Long id);
 }

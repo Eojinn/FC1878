@@ -24,6 +24,7 @@ public class FootballQueryService {
     private final LeagueRepository leagueRepository;
     private final FixtureRepository fixtureRepository;
     private final StandingRepository standingRepository;
+    private final Eojinn.FC1878.football.repository.TeamRepository teamRepository;
 
     public List<LeagueResponse> leagues() {
         return leagueRepository.findAll().stream().map(LeagueResponse::from).toList();
@@ -41,6 +42,19 @@ public class FootballQueryService {
                     .fixtures().add(FixtureResponse.from(f));
         }
         return List.copyOf(grouped.values());
+    }
+
+    /** 메인 "오늘의 승부예측" 카드: 가장 가까운 예정 경기 */
+    public java.util.Optional<FixtureResponse> featured() {
+        return fixtureRepository.findUpcoming(Eojinn.FC1878.football.domain.FixtureStatus.SCHEDULED,
+                        Eojinn.FC1878.global.common.TimeUtil.nowKst(),
+                        org.springframework.data.domain.PageRequest.of(0, 1))
+                .stream().findFirst().map(FixtureResponse::from);
+    }
+
+    public List<TeamResponse> teams() {
+        return teamRepository.findAll().stream().map(TeamResponse::from)
+                .sorted(java.util.Comparator.comparing(TeamResponse::name)).toList();
     }
 
     public FixtureResponse fixture(Long id) {

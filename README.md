@@ -19,7 +19,7 @@
 현재는 **Spring Boot 기반 백엔드 뼈대(skeleton)** 를 구성한 초기 단계입니다.
 
 - **Backend** : Spring Boot REST API
-- **Frontend** : React (예정)
+- **Frontend** : React + Vite (`frontend/` 폴더, 실행 방법은 `frontend/README.md`)
 - **Infra** : Docker · AWS (예정)
 
 <br/>
@@ -190,7 +190,7 @@ application-local.yaml
 - [x] 회원가입 · 로그인 (Spring Security + JWT)
 - [x] 팀 · 경기 · 게시판 도메인 설계
 - [ ] 뉴스 · 이적시장 · 해외파 선수 · 팀빌더 · 전술판
-- [ ] React 프론트엔드 연동
+- [x] React 프론트엔드 연동
 - [ ] Swagger(springdoc-openapi) API 문서화
 - [ ] Docker 이미지 빌드 및 AWS 배포
 - [ ] CI/CD 파이프라인 및 보안 점검 (OWASP ZAP)

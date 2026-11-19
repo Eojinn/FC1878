@@ -1,0 +1,2 @@
+ALTER TABLE league ADD COLUMN korean_name VARCHAR(100);
+ALTER TABLE team ADD COLUMN korean_name VARCHAR(100);

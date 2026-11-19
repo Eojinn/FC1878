@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/leagues/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**").permitAll()
+                                "/api/leagues/**", "/api/teams/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

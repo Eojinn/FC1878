@@ -19,9 +19,11 @@ public class PostController {
 
     @GetMapping
     public PageResponse<PostSummaryResponse> list(@RequestParam(required = false) PostCategory category,
+                                                  @RequestParam(required = false) String keyword,
+                                                  @RequestParam(defaultValue = "latest") String sort,
                                                   @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "20") int size) {
-        return postService.list(category, page, size);
+        return postService.list(category, keyword, sort, page, size);
     }
 
     @GetMapping("/{id}")
