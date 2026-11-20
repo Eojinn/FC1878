@@ -9,10 +9,22 @@ public final class MemberDtos {
     private MemberDtos() {
     }
 
+    /**
+     * 닉네임 정리: 앞뒤 공백 제거 + 중간의 연속 공백은 한 칸으로.
+     * " 골든부트 ", "골든  부트" 같은 값이 다른 닉네임으로 따로 가입되는 것을 막음
+     */
+    public static String normalizeNickname(String nickname) {
+        return nickname == null ? null : nickname.strip().replaceAll("(?U)\\s+", " ");
+    }
+
     public record SignupRequest(
             @NotBlank @Email String email,
             @NotBlank @Size(min = 8, max = 64) String password,
             @NotBlank @Size(min = 2, max = 20) String nickname) {
+        /** 요청을 받자마자 정리 → 길이 검사(@Size)도 정리된 값으로 함 */
+        public SignupRequest {
+            nickname = normalizeNickname(nickname);
+        }
     }
 
     /** rememberMe: "로그인 상태 유지" 체크 여부 (생략하면 false) */
@@ -33,6 +45,9 @@ public final class MemberDtos {
     }
 
     public record ChangeNicknameRequest(@NotBlank @Size(min = 2, max = 20) String nickname) {
+        public ChangeNicknameRequest {
+            nickname = normalizeNickname(nickname);
+        }
     }
 
     public record ChangePasswordRequest(
