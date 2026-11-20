@@ -6,6 +6,7 @@ import Eojinn.FC1878.global.security.JwtProperties;
 import Eojinn.FC1878.global.security.JwtProvider;
 import Eojinn.FC1878.member.MemberDtos.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,12 @@ public class AuthService {
         if (MemberService.isReservedNickname(req.nickname())) throw new BusinessException(ErrorCode.RESERVED_NICKNAME);
         if (memberRepository.existsByNickname(req.nickname())) throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
         Member member = Member.create(req.email(), passwordEncoder.encode(req.password()), req.nickname());
-        return memberRepository.save(member).getId();
+        try {
+            // 바로 DB 에 반영해서, 동시에 같은 이메일·닉네임으로 가입하면 여기서 중복 에러를 잡는다
+            return memberRepository.saveAndFlush(member).getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(MemberConstraint.toErrorCode(e));
+        }
     }
 
     @Transactional(readOnly = true)
