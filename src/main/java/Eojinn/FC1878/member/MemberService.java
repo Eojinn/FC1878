@@ -40,7 +40,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeNickname(Long memberId, String nickname) {
         Member member = getMember(memberId);
-        String trimmed = nickname.trim();
+        String trimmed = MemberDtos.normalizeNickname(nickname);
         if (isReservedNickname(trimmed)) throw new BusinessException(ErrorCode.RESERVED_NICKNAME);
         if (!trimmed.equals(member.getNickname()) && memberRepository.existsByNickname(trimmed)) {
             throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
