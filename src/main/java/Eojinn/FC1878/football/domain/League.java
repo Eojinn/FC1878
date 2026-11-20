@@ -15,7 +15,7 @@ public class League extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 외부 API(API-Football)의 리그 ID */
+    /** 외부 데이터(football-data.org)의 대회 ID */
     @Column(nullable = false, unique = true)
     private Integer externalId;
 

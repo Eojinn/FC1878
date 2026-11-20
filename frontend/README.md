@@ -16,5 +16,5 @@ npm run dev        # http://localhost:5173
 - `sample1@fc1878.dev` / `password1234!`
 
 ## 엠블럼
-리그·팀 엠블럼은 백엔드의 `logoUrl`(API-Football 제공 이미지)을 `<Emblem>` 컴포넌트가 표시합니다.
+리그·팀 엠블럼은 백엔드의 `logoUrl`(football-data.org 제공 이미지)을 `<Emblem>` 컴포넌트가 표시합니다.
 이미지가 없거나 불러오지 못하면 이름 약자가 들어간 원으로 대체됩니다.

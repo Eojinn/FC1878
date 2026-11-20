@@ -47,5 +47,8 @@ export const num = (n) => (n ?? 0).toLocaleString('ko-KR');
 
 export const CATEGORY_LABEL = { FREE: '자유', MATCH: '경기', TRANSFER: '이적', OVERSEAS: '해외파', TACTICS: '전술' };
 
-/** 인기 리그 표시 순서 (API-Football 리그 ID) */
-export const POPULAR_LEAGUE_ORDER = [39, 140, 135, 78, 61, 2, 292];
+/** 인기 리그 표시 순서 (football-data.org 대회 ID: PL, PD, SA, BL1, FL1, CL) */
+export const POPULAR_LEAGUE_ORDER = [2021, 2014, 2019, 2002, 2015, 2001];
+
+/** 프리미어리그 ID (football-data.org) */
+export const EPL_IDS = [2021];

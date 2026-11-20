@@ -7,51 +7,58 @@ import Eojinn.FC1878.global.common.TimeUtil;
 import Eojinn.FC1878.prediction.PredictionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 /**
- * football.api.enabled=true 일 때만 동작.
- * API-Football 무료 플랜은 하루 100회 제한이므로 주기를 보수적으로 잡음. 유료 플랜이면 라이브 주기를 1분으로 줄이면 됨.
+ * football-data.org 토큰(football.api.key)이 있을 때만 동작. football.api.enabled=false 로 끌 수 있다.
+ * football-data.org 무료 플랜은 분당 10회 제한 → 경기는 1회 요청으로 8일치를 가져오고, 순위는 요청 사이 간격을 둔다.
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "football.api", name = "enabled", havingValue = "true")
+@ConditionalOnExpression("!'${football.api.key:}'.isBlank() and ${football.api.enabled:true}")
 public class FootballSyncScheduler {
+
+    /** 분당 10회 제한을 넘지 않도록 순위 요청 사이에 쉬는 시간 */
+    private static final long STANDINGS_GAP_MS = 7_000;
 
     private final FootballSyncService syncService;
     private final PredictionService predictionService;
     private final FixtureRepository fixtureRepository;
     private final FootballApiProperties props;
 
-    /** 10분마다 오늘 + 내일 경기 동기화, 종료된 경기 정산 */
-    @Scheduled(initialDelay = 5_000, fixedDelay = 600_000)
-    public void syncTodayFixtures() {
+    /** 어제 ~ 6일 뒤 경기 동기화 + 종료 경기 정산. 기본 2분 주기 (요청 1회) */
+    @Scheduled(initialDelay = 5_000, fixedDelayString = "${football.api.fixture-sync-ms:120000}")
+    public void syncFixtures() {
         LocalDate today = LocalDate.now(TimeUtil.KST);
         try {
-            syncService.syncFixtures(today.minusDays(1)); // 새벽에 끝난 유럽 경기 반영
-            syncService.syncFixtures(today);
-            syncService.syncFixtures(today.plusDays(1));
+            int n = syncService.syncFixtures(today.minusDays(1), today.plusDays(6));
+            log.debug("경기 {}건 동기화", n);
         } catch (Exception e) {
             log.error("경기 동기화 실패", e);
         }
         settleFinished();
     }
 
-    /** 매일 05:00(KST) 순위표 동기화 */
-    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
+    /** 서버 시작 20초 뒤 1회, 이후 3시간마다 순위표 동기화 (대회 수만큼 요청) */
+    @Scheduled(initialDelay = 20_000, fixedDelayString = "${football.api.standings-sync-ms:10800000}")
     public void syncStandings() {
-        for (Integer leagueId : props.leagueIds()) {
+        for (String code : props.competitions()) {
             try {
-                syncService.syncStandings(leagueId, props.season());
+                syncService.syncStandings(code);
+                Thread.sleep(STANDINGS_GAP_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
             } catch (Exception e) {
-                log.error("순위 동기화 실패 league={}", leagueId, e);
+                log.error("순위 동기화 실패 competition={}", code, e);
             }
         }
+        log.info("순위표 동기화 완료: {}", props.competitions());
     }
 
     private void settleFinished() {
