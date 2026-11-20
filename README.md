@@ -164,6 +164,7 @@ application-local.yaml
 | 기능 | Method | URL | 인증 |
 |---|---|---|---|
 | 회원가입 / 로그인(JWT) | POST | `/api/auth/signup`, `/api/auth/login` | - |
+| 로그인 자동 연장 / 로그아웃 | POST | `/api/auth/refresh`, `/api/auth/logout` (리프레시 토큰은 HttpOnly 쿠키) | - |
 | 내 정보 / 좋아하는 팀 팔로우 | GET / PUT | `/api/members/me`, `/api/members/me/favorite-team` | ✅ |
 | 닉네임 · 비밀번호 변경 | PATCH | `/api/members/me/nickname`, `/api/members/me/password` | ✅ |
 | 회원 탈퇴 (비밀번호 확인) | POST | `/api/members/me/withdraw` | ✅ |
