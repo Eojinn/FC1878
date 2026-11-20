@@ -27,6 +27,17 @@ public final class MemberDtos {
     public record FavoriteTeamRequest(@NotNull Long teamId) {
     }
 
+    public record ChangeNicknameRequest(@NotBlank @Size(min = 2, max = 20) String nickname) {
+    }
+
+    public record ChangePasswordRequest(
+            @NotBlank String currentPassword,
+            @NotBlank @Size(min = 8, max = 64) String newPassword) {
+    }
+
+    public record WithdrawRequest(@NotBlank String password) {
+    }
+
     public record MemberResponse(Long id, String email, String nickname, int point,
                                  Long favoriteTeamId, String favoriteTeamName, String favoriteTeamLogo) {
         public static MemberResponse from(Member m) {
