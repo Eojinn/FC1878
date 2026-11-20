@@ -165,6 +165,8 @@ application-local.yaml
 |---|---|---|---|
 | 회원가입 / 로그인(JWT) | POST | `/api/auth/signup`, `/api/auth/login` | - |
 | 내 정보 / 좋아하는 팀 팔로우 | GET / PUT | `/api/members/me`, `/api/members/me/favorite-team` | ✅ |
+| 닉네임 · 비밀번호 변경 | PATCH | `/api/members/me/nickname`, `/api/members/me/password` | ✅ |
+| 회원 탈퇴 (비밀번호 확인) | POST | `/api/members/me/withdraw` | ✅ |
 | 리그 목록 | GET | `/api/leagues` | - |
 | 경기일정 (날짜·리그·팀 필터) | GET | `/api/fixtures?date=2026-11-22&leagueId=1&teamId=3` | - |
 | 경기 상세 | GET | `/api/fixtures/{id}` | - |

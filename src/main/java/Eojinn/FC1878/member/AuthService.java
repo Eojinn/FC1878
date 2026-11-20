@@ -20,6 +20,7 @@ public class AuthService {
     @Transactional
     public Long signup(SignupRequest req) {
         if (memberRepository.existsByEmail(req.email())) throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        if (MemberService.isReservedNickname(req.nickname())) throw new BusinessException(ErrorCode.RESERVED_NICKNAME);
         if (memberRepository.existsByNickname(req.nickname())) throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
         Member member = Member.create(req.email(), passwordEncoder.encode(req.password()), req.nickname());
         return memberRepository.save(member).getId();

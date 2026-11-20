@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { api } from '../api/api';
 import { useAuth } from '../auth/AuthContext';
+import AccountSettings from '../components/AccountSettings';
 import Emblem from '../components/Emblem';
 import StateBox from '../components/StateBox';
 import { useAsync } from '../hooks/useAsync';
@@ -31,6 +32,8 @@ export default function MyPage() {
             : '아직 선택하지 않았어요'}</span>
         </div>
       </section>
+
+      <AccountSettings />
 
       <section className="card side-card">
         <div className="side-card__head">

@@ -7,6 +7,10 @@ export const api = {
   me: () => request('/members/me'),
   myRank: () => request('/members/me/rank'),
   setFavoriteTeam: (teamId) => request('/members/me/favorite-team', { method: 'PUT', body: { teamId } }),
+  changeNickname: (nickname) => request('/members/me/nickname', { method: 'PATCH', body: { nickname } }),
+  changePassword: (currentPassword, newPassword) =>
+    request('/members/me/password', { method: 'PATCH', body: { currentPassword, newPassword } }),
+  withdraw: (password) => request('/members/me/withdraw', { method: 'POST', body: { password } }),
 
   // 축구 데이터
   leagues: () => request('/leagues'),

@@ -50,6 +50,31 @@ public class Member extends BaseTimeEntity {
         this.point += amount;
     }
 
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public boolean isWithdrawn() {
+        return role == Role.WITHDRAWN;
+    }
+
+    /**
+     * 회원 탈퇴: 게시글·댓글·예측 기록은 남겨두고 개인정보만 지운다.
+     * 이메일이 바뀌므로 같은 이메일로 다시 가입할 수 있고, 예전 비밀번호로는 로그인할 수 없다.
+     */
+    public void withdraw(String randomEncodedPassword) {
+        this.email = "withdrawn-" + id + "@deleted.fc1878";
+        this.nickname = "탈퇴한회원" + id;
+        this.password = randomEncodedPassword;
+        this.role = Role.WITHDRAWN;
+        this.point = 0;
+        this.favoriteTeam = null;
+    }
+
     public void changeFavoriteTeam(Team team) {
         this.favoriteTeam = team;
     }

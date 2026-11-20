@@ -6,8 +6,12 @@ import Eojinn.FC1878.global.error.BusinessException;
 import Eojinn.FC1878.global.error.ErrorCode;
 import Eojinn.FC1878.member.MemberDtos.MemberResponse;
 import lombok.RequiredArgsConstructor;
+import Eojinn.FC1878.ranking.RankingService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,13 +20,60 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
 
+    private final PasswordEncoder passwordEncoder;
+    private final RankingService rankingService;
+
+    /** 탈퇴한 회원은 없는 회원으로 취급 (탈퇴 전에 받은 로그인 토큰으로도 아무것도 못 하게) */
     public Member getMember(Long id) {
-        return memberRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        return memberRepository.findById(id)
+                .filter(m -> !m.isWithdrawn())
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
     public MemberResponse me(Long memberId) {
         return MemberResponse.from(getMember(memberId));
+    }
+
+    @Transactional
+    public MemberResponse changeNickname(Long memberId, String nickname) {
+        Member member = getMember(memberId);
+        String trimmed = nickname.trim();
+        if (isReservedNickname(trimmed)) throw new BusinessException(ErrorCode.RESERVED_NICKNAME);
+        if (!trimmed.equals(member.getNickname()) && memberRepository.existsByNickname(trimmed)) {
+            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+        member.changeNickname(trimmed);
+        return MemberResponse.from(member);
+    }
+
+    @Transactional
+    public void changePassword(Long memberId, String currentPassword, String newPassword) {
+        Member member = getMember(memberId);
+        checkPassword(member, currentPassword);
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            throw new BusinessException(ErrorCode.SAME_PASSWORD);
+        }
+        member.changePassword(passwordEncoder.encode(newPassword));
+    }
+
+    @Transactional
+    public void withdraw(Long memberId, String password) {
+        Member member = getMember(memberId);
+        checkPassword(member, password);
+        member.withdraw(passwordEncoder.encode(UUID.randomUUID().toString()));
+        rankingService.remove(memberId);
+    }
+
+    /** 탈퇴 회원 표시용 이름과 겹치지 않게 */
+    public static boolean isReservedNickname(String nickname) {
+        return nickname.startsWith("탈퇴한회원");
+    }
+
+    private void checkPassword(Member member, String rawPassword) {
+        if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+            throw new BusinessException(ErrorCode.WRONG_PASSWORD);
+        }
     }
 
     @Transactional

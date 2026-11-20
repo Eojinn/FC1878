@@ -29,6 +29,11 @@ public class RankingService {
     public record RankingEntry(long rank, Long memberId, String nickname, long point) {
     }
 
+    /** 탈퇴 등으로 랭킹에서 빼기 */
+    public void remove(Long memberId) {
+        redis.opsForZSet().remove(KEY, String.valueOf(memberId));
+    }
+
     public void addScore(Long memberId, int delta) {
         redis.opsForZSet().incrementScore(KEY, String.valueOf(memberId), delta);
     }
