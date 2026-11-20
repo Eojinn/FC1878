@@ -7,6 +7,7 @@ import Eojinn.FC1878.global.error.ErrorCode;
 import Eojinn.FC1878.member.MemberDtos.MemberResponse;
 import lombok.RequiredArgsConstructor;
 import Eojinn.FC1878.ranking.RankingService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,11 @@ public class MemberService {
             throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
         }
         member.changeNickname(trimmed);
+        try {
+            memberRepository.flush(); // 동시에 같은 닉네임으로 바꾸는 경우를 여기서 잡음
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(MemberConstraint.toErrorCode(e));
+        }
         return MemberResponse.from(member);
     }
 
