@@ -3,7 +3,7 @@ import { useState } from 'react';
 const COLORS = ['#C8102E', '#132257', '#034694', '#3D195B', '#0B3D91', '#2F3A4A', '#7A1F3D', '#1D6B4F'];
 
 /**
- * 리그/팀 엠블럼. logoUrl(API-Football 제공 이미지)이 있으면 이미지,
+ * 리그/팀 엠블럼. logoUrl(데이터 제공처의 엠블럼 이미지)이 있으면 이미지,
  * 없거나 불러오기 실패하면 이름 약자가 들어간 원으로 대체.
  */
 export default function Emblem({ src, name = '', size = 28, rounded = false }) {

@@ -1,9 +1,6 @@
 spring:
   application:
     name: FC1878
-  profiles:
-    # 프로필을 따로 지정하지 않으면 dev → 샘플 데이터(DevDataSeeder)가 들어감. 배포 시에는 prod 등으로 지정
-    default: dev
   jpa:
     open-in-view: false
     hibernate:
@@ -25,12 +22,15 @@ jwt:
 
 football:
   api:
-    enabled: ${FOOTBALL_API_ENABLED:false}   # API 키를 넣고 true 로 바꾸면 자동 동기화 시작
-    base-url: https://v3.football.api-sports.io
-    key: ${FOOTBALL_API_KEY:}
-    season: 2026
-    # API-Football 리그 ID: EPL 39, 라리가 140, 세리에A 135, 분데스 78, 리그1 61, UCL 2, K리그1 292
-    league-ids: 39,140,135,78,61,2,292
+    # 데이터 제공: football-data.org (무료 플랜: 주요 12개 대회 현재 시즌, 분당 10회, 스코어는 지연 제공)
+    enabled: ${FOOTBALL_API_ENABLED:true}   # 키를 넣고 true 로 바꾸면 자동 동기화 시작
+    base-url: https://api.football-data.org/v4
+    key: ${FOOTBALL_API_KEY:7e12359dce104f4baaa0378f578403b8}               # football-data.org 에서 받은 토큰 (환경변수로만 넣기)
+    season: ${FOOTBALL_API_SEASON:2026}     # 순위 화면 기본 시즌 (2026-27 시즌 = 2026)
+    # 대회 코드: PL 프리미어리그, PD 라리가, SA 세리에A, BL1 분데스리가, FL1 리그1, CL 챔피언스리그
+    competitions: PL,PD,SA,BL1,FL1,CL
+    fixture-sync-ms: 120000                 # 경기 동기화 주기 (2분, 요청 1회)
+    standings-sync-ms: 10800000             # 순위 동기화 주기 (3시간, 대회 수만큼 요청)
 
 app:
   cors:

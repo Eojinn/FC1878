@@ -19,7 +19,7 @@ import Eojinn.FC1878.prediction.PredictionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,17 +33,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * dev 프로필에서 DB가 비어 있을 때만 화면 확인용 샘플 데이터를 넣는다.
- * 순위·스코어·포인트 등 모든 수치는 가짜 데이터이며, 외부 API 동기화가 켜지면 실제 데이터로 덮어써진다.
- * 리그/팀 ID 와 엠블럼 URL 은 API-Football 기준 (팀 목록은 SampleTeams).
+ * football-data.org 토큰(FOOTBALL_API_KEY)이 없을 때, DB가 비어 있으면 화면 확인용 샘플 데이터를 넣는다.
+ * 순위·스코어·포인트 등 모든 수치는 가짜 데이터다. 토큰을 넣고 실제 데이터를 받으려면 DB를 비우고 다시 실행한다.
  */
 @Slf4j
 @Component
-@Profile("dev")
+@ConditionalOnExpression("'${football.api.key:}'.isBlank()")
 @RequiredArgsConstructor
 public class DevDataSeeder implements CommandLineRunner {
 
-    private static final String LEAGUE_LOGO = "https://media.api-sports.io/football/leagues/%d.png";
+    /** football-data.org 대회 엠블럼 */
+    private static final String LEAGUE_LOGO = "https://crests.football-data.org/%s.png";
+    /** 팀 엠블럼 이미지 (샘플 화면용) */
     private static final String TEAM_LOGO = "https://media.api-sports.io/football/teams/%d.png";
     private static final int SEASON = 2026;
 
@@ -68,24 +69,24 @@ public class DevDataSeeder implements CommandLineRunner {
         log.info("[dev] 샘플 데이터를 생성합니다.");
 
         // 리그 + 팀 (SampleTeams 참고)
-        int syntheticId = 9_100_000; // API ID를 모르는 팀용 임시 externalId
+        int sampleTeamId = 1_900_000_001; // 실제 football-data.org 팀 ID와 겹치지 않는 임시 externalId
         for (SampleTeams.L l : SampleTeams.LEAGUES) {
-            league(l.extId(), l.name(), l.ko(), l.country());
+            league(l.extId(), l.code(), l.name(), l.ko(), l.country());
             List<Team> teamList = new ArrayList<>();
             for (SampleTeams.T t : l.teams()) {
-                teamList.add(team(t.extId() > 0 ? t.extId() : syntheticId++, t.name(), t.ko(), t.extId() > 0));
+                teamList.add(team(sampleTeamId++, t.name(), t.ko(), t.logoId()));
             }
             leagueTeams.put(l.extId(), teamList);
         }
 
         LocalDateTime now = TimeUtil.nowKst().truncatedTo(ChronoUnit.HOURS);
-        int id = 900_001; // 실제 API fixture ID와 겹치지 않도록 큰 값 사용
+        int id = 1_900_000_001; // 실제 경기 ID와 겹치지 않는 임시 값
 
-        Fixture done = fixture(id++, 39, "리버풀", "브라이튼", "Regular Season - 13", now.minusDays(1).withHour(23),
+        Fixture done = fixture(id++, 2021, "리버풀", "브라이튼", "Regular Season - 13", now.minusDays(1).withHour(23),
                 FixtureStatus.FINISHED, 90, 2, 1);
         done.markSettled();
-        fixture(id++, 39, "아스널", "뉴캐슬", "Regular Season - 13", now.minusHours(1), FixtureStatus.LIVE, 67, 1, 1);
-        Fixture featured = fixture(id++, 39, "토트넘", "첼시", "Regular Season - 13", now.plusHours(3),
+        fixture(id++, 2021, "아스널", "뉴캐슬", "Regular Season - 13", now.minusHours(1), FixtureStatus.LIVE, 67, 1, 1);
+        Fixture featured = fixture(id++, 2021, "토트넘", "첼시", "Regular Season - 13", now.plusHours(3),
                 FixtureStatus.SCHEDULED, null, null, null);
 
         // 나머지 샘플 경기: 내일~모레에 나눠 배치
@@ -107,7 +108,7 @@ public class DevDataSeeder implements CommandLineRunner {
         for (var e : leagueTeams.entrySet()) {
             List<Team> list = e.getValue();
             if (list.isEmpty()) continue;
-            int played = e.getKey() == 292 ? 33 : 12;
+            int played = 12;
             int maxPts = played * 3 - played / 2;
             for (int i = 0; i < list.size(); i++) {
                 int pts = Math.max(1, maxPts - i * (maxPts / list.size()) - rnd.nextInt(2));
@@ -153,14 +154,14 @@ public class DevDataSeeder implements CommandLineRunner {
         log.info("[dev] 샘플 데이터 생성 완료 (로그인 테스트: sample1@fc1878.dev / password1234!)");
     }
 
-    private void league(int extId, String name, String ko, String country) {
-        League l = League.of(extId, name, country, LEAGUE_LOGO.formatted(extId));
+    private void league(int extId, String code, String name, String ko, String country) {
+        League l = League.of(extId, name, country, LEAGUE_LOGO.formatted(code));
         l.changeKoreanName(ko);
         leagues.put(extId, leagueRepository.save(l));
     }
 
-    private Team team(int extId, String name, String ko, boolean hasLogo) {
-        Team t = Team.of(extId, name, hasLogo ? TEAM_LOGO.formatted(extId) : null);
+    private Team team(int extId, String name, String ko, int logoId) {
+        Team t = Team.of(extId, name, logoId > 0 ? TEAM_LOGO.formatted(logoId) : null);
         t.changeKoreanName(ko);
         Team saved = teamRepository.save(t);
         teamsByKo.put(ko, saved);

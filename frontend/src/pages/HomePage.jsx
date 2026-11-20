@@ -7,6 +7,7 @@ import PredictionCard from '../components/PredictionCard';
 import { PopularPosts, RankingMini, StandingsMini } from '../components/Sidebar';
 import { useAsync } from '../hooks/useAsync';
 import { useLeagues } from '../hooks/useLeagues';
+import { EPL_IDS } from '../utils/format';
 
 function PopularLeagues({ leagues }) {
   return (
@@ -53,7 +54,7 @@ function FollowBanner() {
 export default function HomePage() {
   const { leagues } = useLeagues();
   const { data: featured, loading } = useAsync(() => api.featured(), []);
-  const epl = leagues.find((l) => l.externalId === 39) || leagues[0];
+  const epl = leagues.find((l) => EPL_IDS.includes(l.externalId)) || leagues[0];
 
   return (
     <div className="stack-lg">

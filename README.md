@@ -176,9 +176,12 @@ application-local.yaml
 | 댓글 | GET/POST/DELETE | `/api/posts/{id}/comments`, `/api/comments/{id}` | 쓰기 ✅ |
 | 실시간 스코어 (STOMP) | WS | `/ws` → 구독 `/topic/live`, `/topic/fixtures/{id}` | - |
 
-경기 데이터는 [API-Football](https://www.api-football.com/) 에서 가져옵니다.
-`FOOTBALL_API_KEY` 와 `FOOTBALL_API_ENABLED=true` 환경변수를 주면 10분마다 경기, 매일 05시에 순위가 동기화되고,
-종료된 경기는 승부예측이 자동 정산(적중 시 +10P)됩니다.
+경기 데이터는 [football-data.org](https://www.football-data.org/) 무료 플랜에서 가져옵니다.
+(프리미어리그 · 라리가 · 세리에A · 분데스리가 · 리그1 · 챔피언스리그, 현재 시즌, 스코어는 지연 제공)
+
+- 환경변수 `FOOTBALL_API_KEY` 에 football-data.org 토큰을 넣으면 2분마다 경기, 3시간마다 순위가 동기화되고
+  종료된 경기는 승부예측이 자동 정산(적중 시 +10P)됩니다.
+- 토큰이 없으면 화면 확인용 **샘플 데이터**가 들어갑니다. 샘플에서 실제 데이터로 바꿀 때는 `docker compose down -v` 로 DB를 비우고 다시 실행하세요.
 
 <br/>
 

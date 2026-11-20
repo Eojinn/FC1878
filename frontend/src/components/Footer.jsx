@@ -14,7 +14,7 @@ export default function Footer() {
           <Link to="/privacy" className="is-strong">개인정보처리방침</Link>
           <Link to="/bug-report">버그 제보</Link>
         </nav>
-        <small className="footer__copy">© 2026 FC1878. 경기 데이터 제공: API-Football</small>
+        <small className="footer__copy">© 2026 FC1878. Football data provided by the Football-Data.org API</small>
       </div>
     </footer>
   );
