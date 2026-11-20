@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import { useAuth } from '../auth/AuthContext';
+import SocialLogin from '../components/SocialLogin';
 
 const firstError = (err) => Object.values(err.body?.fieldErrors || {})[0] || err.message;
 
@@ -10,7 +11,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '', rememberMe: false });
-  const [error, setError] = useState('');
+  const [params] = useSearchParams();
+  const [error, setError] = useState(params.get('error') || '');
 
   const submit = async (e) => {
     e.preventDefault();
@@ -22,6 +24,7 @@ export function LoginPage() {
   return (
     <form className="card form auth-form" onSubmit={submit}>
       <h1 className="h1">로그인</h1>
+      <SocialLogin />
       <label className="field"><span>이메일</span>
         <input type="email" required autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       </label>
@@ -61,6 +64,7 @@ export function SignupPage() {
   return (
     <form className="card form auth-form" onSubmit={submit}>
       <h1 className="h1">회원가입</h1>
+      <SocialLogin />
       <label className="field"><span>이메일</span>
         <input type="email" required autoComplete="email" value={form.email} onChange={set('email')} />
       </label>

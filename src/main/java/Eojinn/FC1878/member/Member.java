@@ -36,6 +36,10 @@ public class Member extends BaseTimeEntity {
     @JoinColumn(name = "favorite_team_id")
     private Team favoriteTeam;
 
+    /** 이메일+비밀번호로 로그인할 수 있는지. 소셜 로그인으로 가입한 회원은 false */
+    @Column(nullable = false)
+    private boolean passwordLogin;
+
     public static Member create(String email, String encodedPassword, String nickname) {
         Member m = new Member();
         m.email = email;
@@ -43,6 +47,14 @@ public class Member extends BaseTimeEntity {
         m.nickname = nickname;
         m.role = Role.USER;
         m.point = 0;
+        m.passwordLogin = true;
+        return m;
+    }
+
+    /** 소셜 로그인으로 가입 (비밀번호는 아무도 모르는 무작위 값) */
+    public static Member createSocial(String email, String randomEncodedPassword, String nickname) {
+        Member m = create(email, randomEncodedPassword, nickname);
+        m.passwordLogin = false;
         return m;
     }
 

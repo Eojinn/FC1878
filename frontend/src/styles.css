@@ -247,3 +247,14 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .row-actions { display: flex; gap: 8px; }
 .btn--danger { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 700; }
 .btn--danger-ghost { color: var(--accent); border-color: var(--accent); background: var(--card); }
+
+/* ===== 소셜 로그인 ===== */
+.social { display: flex; flex-direction: column; gap: 10px; }
+.social-btn { height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; border: 1px solid transparent; }
+.social-btn:hover { opacity: .9; }
+.social-btn--kakao { background: #FEE500; color: rgba(0, 0, 0, 0.85); }
+.social-btn--google { background: #FFFFFF; color: #1F1F1F; border-color: #747775; }
+.social-btn--apple { background: #000000; color: #FFFFFF; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 6px 0 2px; color: var(--sub); font-size: 13px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.chip.is-static { cursor: default; display: inline-flex; align-items: center; }

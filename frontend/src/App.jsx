@@ -8,6 +8,7 @@ import FixtureDetailPage from './pages/FixtureDetailPage';
 import FixturesPage from './pages/FixturesPage';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
+import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PostWritePage from './pages/PostWritePage';
 import RankingPage from './pages/RankingPage';
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/community/:id/edit" element={<PostWritePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/me" element={<MyPage />} />
           <Route path="/transfers" element={<ComingSoonPage title="이적시장" />} />
           <Route path="/overseas" element={<ComingSoonPage title="해외파" />} />

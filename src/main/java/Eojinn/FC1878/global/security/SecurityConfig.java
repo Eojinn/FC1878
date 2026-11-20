@@ -1,5 +1,8 @@
 package Eojinn.FC1878.global.security;
 
+import Eojinn.FC1878.oauth.OAuthLoginHandlers;
+import Eojinn.FC1878.oauth.RedisAuthorizationRequestRepository;
+import Eojinn.FC1878.oauth.SocialClientRegistrationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,6 +26,9 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final SocialClientRegistrationRepository clientRegistrationRepository;
+    private final RedisAuthorizationRequestRepository authorizationRequestRepository;
+    private final OAuthLoginHandlers oAuthLoginHandlers;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -38,18 +42,20 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**",
+                                "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/leagues/**", "/api/teams/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**").permitAll()
                         .anyRequest().authenticated())
+                // 소셜 로그인: /oauth2/authorization/{google|kakao|apple} 로 시작 → /login/oauth2/code/{...} 로 돌아옴
+                .oauth2Login(o -> o
+                        .clientRegistrationRepository(clientRegistrationRepository)
+                        .authorizationEndpoint(a -> a.authorizationRequestRepository(authorizationRequestRepository))
+                        .successHandler(oAuthLoginHandlers.success())
+                        .failureHandler(oAuthLoginHandlers.failure()))
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
