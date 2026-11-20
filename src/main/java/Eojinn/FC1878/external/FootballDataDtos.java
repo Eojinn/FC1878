@@ -41,8 +41,17 @@ public final class FootballDataDtos {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Match(Integer id, Area area, Competition competition, Season season, OffsetDateTime utcDate,
-                        String status, Integer minute, Integer matchday, String stage,
+                        String status, Object minute, Integer matchday, String stage,
                         TeamRef homeTeam, TeamRef awayTeam, Score score) {
+        /** minute 은 90 같은 숫자나 "45+2" 같은 문자열로 올 수 있음 → 앞쪽 숫자만 사용 */
+        public Integer minuteValue() {
+            if (minute instanceof Number n) return n.intValue();
+            if (minute instanceof String s) {
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("^\\d+").matcher(s.trim());
+                return m.find() ? Integer.valueOf(m.group()) : null;
+            }
+            return null;
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

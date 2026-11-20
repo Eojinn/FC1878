@@ -37,7 +37,7 @@ public class FootballSyncScheduler {
         LocalDate today = LocalDate.now(TimeUtil.KST);
         try {
             int n = syncService.syncFixtures(today.minusDays(1), today.plusDays(6));
-            log.debug("경기 {}건 동기화", n);
+            log.info("경기 {}건 DB 반영", n);
         } catch (Exception e) {
             log.error("경기 동기화 실패", e);
         }
