@@ -1,6 +1,7 @@
 package Eojinn.FC1878.member;
 
 import Eojinn.FC1878.member.MemberDtos.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import Eojinn.FC1878.global.error.BusinessException;
@@ -27,8 +28,9 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest req) {
-        return withCookie(authService.login(req));
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest req, HttpServletRequest request) {
+        // 배포 시 Nginx 등 프록시 뒤에 두면 server.forward-headers-strategy=native 로 실제 IP 를 받도록 설정
+        return withCookie(authService.login(req, request.getRemoteAddr()));
     }
 
     /** 액세스 토큰이 만료되면 프론트가 자동으로 호출 (리프레시 토큰은 HttpOnly 쿠키로 옴) */

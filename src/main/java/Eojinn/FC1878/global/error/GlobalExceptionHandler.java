@@ -17,7 +17,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException e) {
         ErrorCode code = e.getErrorCode();
-        return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
+        return ResponseEntity.status(code.getStatus())
+                .body(new ErrorResponse(code.name(), e.getMessage(), Map.of()));
     }
 
     /** 위에서 미처 못 잡은 DB 중복 에러도 500 대신 409 로 (예: 게시글·예측 중복 저장) */

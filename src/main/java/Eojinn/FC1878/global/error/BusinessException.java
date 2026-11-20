@@ -10,4 +10,10 @@ public class BusinessException extends RuntimeException {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
+
+    /** 기본 문구 대신 상황에 맞는 문구를 보여줄 때 (예: "3분 후에 다시 시도해 주세요") */
+    public BusinessException(ErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
 }
