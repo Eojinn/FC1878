@@ -20,6 +20,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
     private final RefreshTokenService refreshTokenService;
+    private final LoginAttemptService loginAttemptService;
 
     /** 로그인/갱신 결과: 본문으로 줄 액세스 토큰 + 쿠키로 줄 리프레시 토큰 */
     public record AuthResult(TokenResponse body, RefreshTokenService.Issued refresh) {
@@ -40,11 +41,13 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public AuthResult login(LoginRequest req) {
+    public AuthResult login(LoginRequest req, String clientIp) {
+        loginAttemptService.checkAllowed(req.email(), clientIp);
         Member member = memberRepository.findByEmail(req.email())
                 .filter(m -> !m.isWithdrawn())
                 .filter(m -> passwordEncoder.matches(req.password(), m.getPassword()))
-                .orElseThrow(() -> new BusinessException(ErrorCode.LOGIN_FAILED));
+                .orElseThrow(() -> loginAttemptService.recordFailure(req.email(), clientIp));
+        loginAttemptService.reset(req.email());
         return new AuthResult(accessToken(member), refreshTokenService.issue(member.getId(), req.remember()));
     }
 
