@@ -9,13 +9,13 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '', rememberMe: false });
   const [error, setError] = useState('');
 
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    try { await login(form.email, form.password); navigate(location.state?.from || '/', { replace: true }); }
+    try { await login(form.email, form.password, form.rememberMe); navigate(location.state?.from || '/', { replace: true }); }
     catch (err) { setError(firstError(err)); }
   };
 
@@ -28,6 +28,11 @@ export function LoginPage() {
       <label className="field"><span>비밀번호</span>
         <input type="password" required autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
       </label>
+      <label className="check">
+        <input type="checkbox" checked={form.rememberMe} onChange={(e) => setForm({ ...form, rememberMe: e.target.checked })} />
+        <span>로그인 상태 유지</span>
+      </label>
+      {form.rememberMe && <p className="muted small">브라우저를 닫아도 14일 동안 로그인이 유지돼요. 공용 PC에서는 체크하지 마세요.</p>}
       {error && <p className="error-text">{error}</p>}
       <button type="submit" className="btn btn--primary btn--block">로그인</button>
       <p className="muted center">아직 회원이 아니신가요? <Link to="/signup">회원가입</Link></p>

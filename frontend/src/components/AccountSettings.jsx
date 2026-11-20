@@ -57,7 +57,7 @@ function PasswordForm() {
     try {
       await api.changePassword(form.current, form.next);
       setForm({ current: '', next: '', confirm: '' });
-      setMsg({ ok: true, text: '비밀번호를 바꿨어요. 다음 로그인부터 새 비밀번호를 쓰세요.' });
+      setMsg({ ok: true, text: '비밀번호를 바꿨어요. 이 기기를 뺀 다른 기기에서는 모두 로그아웃돼요.' });
     } catch (err) {
       setMsg({ ok: false, text: firstError(err) });
     } finally { setBusy(false); }

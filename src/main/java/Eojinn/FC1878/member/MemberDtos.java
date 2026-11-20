@@ -15,12 +15,17 @@ public final class MemberDtos {
             @NotBlank @Size(min = 2, max = 20) String nickname) {
     }
 
-    public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {
+    /** rememberMe: "로그인 상태 유지" 체크 여부 (생략하면 false) */
+    public record LoginRequest(@NotBlank @Email String email, @NotBlank String password, Boolean rememberMe) {
+        public boolean remember() {
+            return Boolean.TRUE.equals(rememberMe);
+        }
     }
 
-    public record TokenResponse(String accessToken, String tokenType) {
-        public static TokenResponse bearer(String token) {
-            return new TokenResponse(token, "Bearer");
+    /** expiresIn: 액세스 토큰 유효 시간(초) */
+    public record TokenResponse(String accessToken, String tokenType, long expiresIn) {
+        public static TokenResponse bearer(String token, long expiresIn) {
+            return new TokenResponse(token, "Bearer", expiresIn);
         }
     }
 

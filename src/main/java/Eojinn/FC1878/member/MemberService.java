@@ -22,6 +22,7 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final RankingService rankingService;
+    private final RefreshTokenService refreshTokenService;
 
     /** 탈퇴한 회원은 없는 회원으로 취급 (탈퇴 전에 받은 로그인 토큰으로도 아무것도 못 하게) */
     public Member getMember(Long id) {
@@ -48,13 +49,15 @@ public class MemberService {
     }
 
     @Transactional
-    public void changePassword(Long memberId, String currentPassword, String newPassword) {
+    /** 비밀번호를 바꾸면 지금 쓰는 기기(currentRefreshToken)만 남기고 다른 기기는 모두 로그아웃 */
+    public void changePassword(Long memberId, String currentPassword, String newPassword, String currentRefreshToken) {
         Member member = getMember(memberId);
         checkPassword(member, currentPassword);
         if (passwordEncoder.matches(newPassword, member.getPassword())) {
             throw new BusinessException(ErrorCode.SAME_PASSWORD);
         }
         member.changePassword(passwordEncoder.encode(newPassword));
+        refreshTokenService.revokeAll(memberId, currentRefreshToken);
     }
 
     @Transactional
@@ -63,6 +66,7 @@ public class MemberService {
         checkPassword(member, password);
         member.withdraw(passwordEncoder.encode(UUID.randomUUID().toString()));
         rankingService.remove(memberId);
+        refreshTokenService.revokeAll(memberId, null);
     }
 
     /** 탈퇴 회원 표시용 이름과 겹치지 않게 */

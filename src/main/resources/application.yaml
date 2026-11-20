@@ -1,6 +1,9 @@
 spring:
   application:
     name: FC1878
+  profiles:
+    # 프로필을 따로 지정하지 않으면 dev → 샘플 데이터(DevDataSeeder)가 들어감. 배포 시에는 prod 등으로 지정
+    default: dev
   jpa:
     open-in-view: false
     hibernate:
@@ -18,14 +21,15 @@ spring:
 jwt:
   # 운영에서는 반드시 환경변수 JWT_SECRET 으로 32바이트 이상 랜덤 값 주입
   secret: ${JWT_SECRET:local-dev-secret-key-change-me-please-32bytes!!}
-  access-token-validity-seconds: 3600
+  access-token-validity-seconds: 1800   # 액세스 토큰 30분 (만료되면 프론트가 자동 갱신)
+  refresh-token-validity-days: 14       # "로그인 상태 유지" 기간
 
 football:
   api:
     # 데이터 제공: football-data.org (무료 플랜: 주요 12개 대회 현재 시즌, 분당 10회, 스코어는 지연 제공)
-    enabled: ${FOOTBALL_API_ENABLED:true}    # 토큰이 있으면 자동 동기화 (끄려면 false)
+    enabled: ${FOOTBALL_API_ENABLED:false}   # 키를 넣고 true 로 바꾸면 자동 동기화 시작
     base-url: https://api.football-data.org/v4
-    key: ${FOOTBALL_API_KEY:}               # football-data.org 토큰 (환경변수로만 넣기).
+    key: ${FOOTBALL_API_KEY:}               # football-data.org 에서 받은 토큰 (환경변수로만 넣기)
     season: ${FOOTBALL_API_SEASON:2026}     # 순위 화면 기본 시즌 (2026-27 시즌 = 2026)
     # 대회 코드: PL 프리미어리그, PD 라리가, SA 세리에A, BL1 분데스리가, FL1 리그1, CL 챔피언스리그
     competitions: PL,PD,SA,BL1,FL1,CL
@@ -33,6 +37,8 @@ football:
     standings-sync-ms: 10800000             # 순위 동기화 주기 (3시간, 대회 수만큼 요청)
 
 app:
+  auth:
+    cookie-secure: ${COOKIE_SECURE:false}   # https 로 배포하면 true
   cors:
     allowed-origins: http://localhost:5173,http://localhost:3000
   prediction:

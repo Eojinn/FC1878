@@ -4,6 +4,7 @@ export const api = {
   // 인증 / 회원
   signup: (body) => request('/auth/signup', { method: 'POST', body }),
   login: (body) => request('/auth/login', { method: 'POST', body }),
+  logout: () => request('/auth/logout', { method: 'POST' }),
   me: () => request('/members/me'),
   myRank: () => request('/members/me/rank'),
   setFavoriteTeam: (teamId) => request('/members/me/favorite-team', { method: 'PUT', body: { teamId } }),
