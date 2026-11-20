@@ -6,6 +6,8 @@ import Eojinn.FC1878.global.error.BusinessException;
 import Eojinn.FC1878.global.error.ErrorCode;
 import Eojinn.FC1878.member.MemberDtos.MemberResponse;
 import lombok.RequiredArgsConstructor;
+import Eojinn.FC1878.oauth.SocialAccount;
+import Eojinn.FC1878.oauth.SocialAccountRepository;
 import Eojinn.FC1878.ranking.RankingService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,13 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RankingService rankingService;
     private final RefreshTokenService refreshTokenService;
+    private final SocialAccountRepository socialAccountRepository;
+
+    private MemberResponse toResponse(Member member) {
+        var providers = socialAccountRepository.findByMemberId(member.getId()).stream()
+                .map(SocialAccount::getProvider).distinct().sorted().toList();
+        return MemberResponse.from(member, providers);
+    }
 
     /** 탈퇴한 회원은 없는 회원으로 취급 (탈퇴 전에 받은 로그인 토큰으로도 아무것도 못 하게) */
     public Member getMember(Long id) {
@@ -34,7 +43,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberResponse me(Long memberId) {
-        return MemberResponse.from(getMember(memberId));
+        return toResponse(getMember(memberId));
     }
 
     @Transactional
@@ -51,13 +60,14 @@ public class MemberService {
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(MemberConstraint.toErrorCode(e));
         }
-        return MemberResponse.from(member);
+        return toResponse(member);
     }
 
     @Transactional
     /** 비밀번호를 바꾸면 지금 쓰는 기기(currentRefreshToken)만 남기고 다른 기기는 모두 로그아웃 */
     public void changePassword(Long memberId, String currentPassword, String newPassword, String currentRefreshToken) {
         Member member = getMember(memberId);
+        if (!member.isPasswordLogin()) throw new BusinessException(ErrorCode.SOCIAL_ONLY_ACCOUNT);
         checkPassword(member, currentPassword);
         if (passwordEncoder.matches(newPassword, member.getPassword())) {
             throw new BusinessException(ErrorCode.SAME_PASSWORD);
@@ -69,7 +79,9 @@ public class MemberService {
     @Transactional
     public void withdraw(Long memberId, String password) {
         Member member = getMember(memberId);
-        checkPassword(member, password);
+        // 소셜로만 가입한 회원은 비밀번호가 없으므로 확인 생략 (화면에서 동의 체크로 대신함)
+        if (member.isPasswordLogin()) checkPassword(member, password);
+        socialAccountRepository.deleteByMemberId(memberId); // 소셜 연결도 끊어서, 다시 로그인하면 새 계정으로
         member.withdraw(passwordEncoder.encode(UUID.randomUUID().toString()));
         rankingService.remove(memberId);
         refreshTokenService.revokeAll(memberId, null);
@@ -81,7 +93,7 @@ public class MemberService {
     }
 
     private void checkPassword(Member member, String rawPassword) {
-        if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+        if (rawPassword == null || !passwordEncoder.matches(rawPassword, member.getPassword())) {
             throw new BusinessException(ErrorCode.WRONG_PASSWORD);
         }
     }
@@ -91,6 +103,6 @@ public class MemberService {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
         Member member = getMember(memberId);
         member.changeFavoriteTeam(team);
-        return MemberResponse.from(member);
+        return toResponse(member);
     }
 }

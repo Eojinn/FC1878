@@ -68,15 +68,24 @@ public final class MemberDtos {
             @NotBlank @Size(min = 8, max = 64) String newPassword) {
     }
 
-    public record WithdrawRequest(@NotBlank String password) {
+    /** password: 이메일 가입 회원은 필수, 소셜 가입 회원은 생략 */
+    public record WithdrawRequest(String password) {
     }
 
+    /**
+     * @param passwordLogin   이메일+비밀번호 로그인 가능 여부 (false 면 비밀번호 변경 화면을 숨김)
+     * @param socialProviders 연결된 소셜 로그인 (google, kakao, apple)
+     */
     public record MemberResponse(Long id, String email, String nickname, int point,
-                                 Long favoriteTeamId, String favoriteTeamName, String favoriteTeamLogo) {
-        public static MemberResponse from(Member m) {
+                                 Long favoriteTeamId, String favoriteTeamName, String favoriteTeamLogo,
+                                 boolean passwordLogin, java.util.List<String> socialProviders) {
+        public static MemberResponse from(Member m, java.util.List<String> socialProviders) {
             var t = m.getFavoriteTeam();
-            return new MemberResponse(m.getId(), m.getEmail(), m.getNickname(), m.getPoint(),
-                    t == null ? null : t.getId(), t == null ? null : t.getName(), t == null ? null : t.getLogoUrl());
+            // 소셜 가입 시 이메일을 못 받은 경우 임시 주소 대신 빈 값으로 보여줌
+            String email = m.getEmail().endsWith("@social.fc1878") ? null : m.getEmail();
+            return new MemberResponse(m.getId(), email, m.getNickname(), m.getPoint(),
+                    t == null ? null : t.getId(), t == null ? null : t.getDisplayName(),
+                    t == null ? null : t.getLogoUrl(), m.isPasswordLogin(), socialProviders);
         }
     }
 }

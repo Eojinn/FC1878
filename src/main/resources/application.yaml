@@ -42,6 +42,22 @@ app:
     login-max-attempts: 5        # 같은 이메일로 5번 틀리면
     login-ip-max-attempts: 30    # 같은 IP 에서 30번 틀리면
     login-lock-minutes: 10       # 10분 동안 로그인 금지
+  # 소셜 로그인. 키가 비어 있는 서비스는 버튼이 안 보임 (키는 config/application.yaml 이나 환경변수로만)
+  oauth:
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+    kakao:
+      client-id: ${KAKAO_CLIENT_ID:}          # REST API 키
+      client-secret: ${KAKAO_CLIENT_SECRET:}  # 보안 > Client Secret
+      scope: ${KAKAO_SCOPE:profile_nickname}  # 이메일 동의 항목을 켰다면 profile_nickname,account_email
+    apple:
+      client-id: ${APPLE_CLIENT_ID:}          # Services ID
+      team-id: ${APPLE_TEAM_ID:}
+      key-id: ${APPLE_KEY_ID:}
+      private-key-path: ${APPLE_PRIVATE_KEY_PATH:}  # AuthKey_XXXX.p8 파일 경로
+      private-key: ${APPLE_PRIVATE_KEY:}
   cors:
     allowed-origins: http://localhost:5173,http://localhost:3000
   prediction:

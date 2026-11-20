@@ -24,7 +24,7 @@ export default function MyPage() {
       <h1 className="h1">내 정보</h1>
       <section className="card my-info">
         <div><span className="muted small">닉네임</span><strong>{user.nickname}</strong></div>
-        <div><span className="muted small">이메일</span><span>{user.email}</span></div>
+        <div><span className="muted small">이메일</span><span>{user.email || '(이메일 정보 없음)'}</span></div>
         <div><span className="muted small">포인트</span><strong className="num">{num(user.point)}P</strong></div>
         <div><span className="muted small">내 팀</span>
           <span className="team-cell">{user.favoriteTeamId

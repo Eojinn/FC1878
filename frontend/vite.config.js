@@ -8,6 +8,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': 'http://localhost:8080',
+      // 소셜 로그인: 시작(/oauth2/authorization/..)과 돌아오는 주소(/login/oauth2/code/..)도 백엔드로
+      '/oauth2': 'http://localhost:8080',
+      '/login/oauth2': 'http://localhost:8080',
       '/ws': { target: 'ws://localhost:8080', ws: true },
     },
   },
