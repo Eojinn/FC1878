@@ -25,7 +25,7 @@ football:
     # 데이터 제공: football-data.org (무료 플랜: 주요 12개 대회 현재 시즌, 분당 10회, 스코어는 지연 제공)
     enabled: ${FOOTBALL_API_ENABLED:true}    # 토큰이 있으면 자동 동기화 (끄려면 false)
     base-url: https://api.football-data.org/v4
-    key: ${FOOTBALL_API_KEY:}               # football-data.org 토큰 (환경변수로만 넣기). 없으면 샘플 데이터 사용
+    key: ${FOOTBALL_API_KEY:}               # football-data.org 토큰 (환경변수로만 넣기).
     season: ${FOOTBALL_API_SEASON:2026}     # 순위 화면 기본 시즌 (2026-27 시즌 = 2026)
     # 대회 코드: PL 프리미어리그, PD 라리가, SA 세리에A, BL1 분데스리가, FL1 리그1, CL 챔피언스리그
     competitions: PL,PD,SA,BL1,FL1,CL

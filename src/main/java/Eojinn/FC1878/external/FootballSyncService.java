@@ -40,7 +40,9 @@ public class FootballSyncService {
     @Transactional
     public int syncFixtures(LocalDate from, LocalDate to) {
         int count = 0;
-        for (Match m : client.matches(from, to)) {
+        var matches = client.matches(from, to);
+        log.info("football-data.org 경기 {}건 수신 ({} ~ {})", matches.size(), from, to);
+        for (Match m : matches) {
             if (m.homeTeam() == null || m.homeTeam().id() == null
                     || m.awayTeam() == null || m.awayTeam().id() == null) {
                 continue; // 토너먼트 대진 미정 경기
@@ -51,8 +53,12 @@ public class FootballSyncService {
             Integer seasonYear = m.season() != null && m.season().startYear() != null
                     ? m.season().startYear() : m.utcDate().getYear();
 
-            Fixture fixture = fixtureRepository.findByExternalId(m.id())
-                    .orElseGet(() -> fixtureRepository.save(Fixture.of(m.id(), league, home, away, seasonYear)));
+            // 새 경기는 킥오프 시간·상태를 모두 채운 뒤에 저장해야 함 (kickoff_at 은 NOT NULL)
+            Fixture fixture = fixtureRepository.findByExternalId(m.id()).orElse(null);
+            boolean isNew = fixture == null;
+            if (isNew) {
+                fixture = Fixture.of(m.id(), league, home, away, seasonYear);
+            }
 
             Goals score = currentScore(m.score());
             Goals pen = m.score() == null ? null : m.score().penalties();
@@ -61,9 +67,12 @@ public class FootballSyncService {
                     roundOf(m),
                     m.utcDate().atZoneSameInstant(TimeUtil.KST).toLocalDateTime(),
                     statusOf(m.status()),
-                    m.minute(),
+                    m.minuteValue(),
                     score == null ? null : score.home(), score == null ? null : score.away(),
                     pen == null ? null : pen.home(), pen == null ? null : pen.away());
+            if (isNew) {
+                fixture = fixtureRepository.save(fixture);
+            }
 
             if (changed && fixture.getId() != null) {
                 FixtureResponse payload = FixtureResponse.from(fixture);
