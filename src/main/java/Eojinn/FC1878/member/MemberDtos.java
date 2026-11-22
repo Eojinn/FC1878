@@ -27,7 +27,7 @@ public final class MemberDtos {
 
     public record SignupRequest(
             @NotBlank @Email String email,
-            @NotBlank @Size(min = 8, max = 64) String password,
+            @NotBlank @StrongPassword String password,
             @NotBlank @Size(min = 2, max = 20) String nickname) {
         /** 요청을 받자마자 정리 → 형식·길이 검사도 정리된 값으로 함 */
         public SignupRequest {
@@ -65,7 +65,7 @@ public final class MemberDtos {
 
     public record ChangePasswordRequest(
             @NotBlank String currentPassword,
-            @NotBlank @Size(min = 8, max = 64) String newPassword) {
+            @NotBlank @StrongPassword String newPassword) {
     }
 
     /** password: 이메일 가입 회원은 필수, 소셜 가입 회원은 생략 */

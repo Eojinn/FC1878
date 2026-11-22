@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/api';
 import { useAuth } from '../auth/AuthContext';
+import PasswordRules from './PasswordRules';
+import { isPasswordValid } from '../utils/password';
 
 const firstError = (err) => Object.values(err.body?.fieldErrors || {})[0] || err.message;
 
@@ -44,6 +46,7 @@ function NicknameForm() {
 }
 
 function PasswordForm() {
+  const { user } = useAuth();
   const [form, setForm] = useState({ current: '', next: '', confirm: '' });
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -69,13 +72,16 @@ function PasswordForm() {
       <label className="field"><span>현재 비밀번호</span>
         <input type="password" required autoComplete="current-password" value={form.current} onChange={set('current')} />
       </label>
-      <label className="field"><span>새 비밀번호 (8자 이상)</span>
-        <input type="password" required minLength={8} maxLength={64} autoComplete="new-password" value={form.next} onChange={set('next')} />
+      <label className="field"><span>새 비밀번호</span>
+        <input type="password" required minLength={8} maxLength={64} autoComplete="new-password"
+               aria-describedby="change-pw-rules" value={form.next} onChange={set('next')} />
       </label>
+      <PasswordRules id="change-pw-rules" password={form.next} email={user.email} nickname={user.nickname} />
       <label className="field"><span>새 비밀번호 확인</span>
         <input type="password" required minLength={8} maxLength={64} autoComplete="new-password" value={form.confirm} onChange={set('confirm')} />
       </label>
-      <button type="submit" className="btn btn--primary align-start" disabled={busy}>비밀번호 변경</button>
+      <button type="submit" className="btn btn--primary align-start"
+              disabled={busy || !isPasswordValid(form.next, { email: user.email, nickname: user.nickname })}>비밀번호 변경</button>
       <Message msg={msg} />
     </form>
   );

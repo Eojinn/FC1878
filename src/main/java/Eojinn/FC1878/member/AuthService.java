@@ -31,6 +31,9 @@ public class AuthService {
         if (memberRepository.existsByEmail(req.email())) throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         if (MemberService.isReservedNickname(req.nickname())) throw new BusinessException(ErrorCode.RESERVED_NICKNAME);
         if (memberRepository.existsByNickname(req.nickname())) throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+        PasswordPolicy.personalInfoViolation(req.password(), req.email(), req.nickname()).ifPresent(reason -> {
+            throw new BusinessException(ErrorCode.WEAK_PASSWORD, reason);
+        });
         Member member = Member.create(req.email(), passwordEncoder.encode(req.password()), req.nickname());
         try {
             // 바로 DB 에 반영해서, 동시에 같은 이메일·닉네임으로 가입하면 여기서 중복 에러를 잡는다

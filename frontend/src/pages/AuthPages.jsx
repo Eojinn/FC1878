@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import { useAuth } from '../auth/AuthContext';
+import PasswordRules from '../components/PasswordRules';
 import SocialLogin from '../components/SocialLogin';
+import { isPasswordValid } from '../utils/password';
 
 const firstError = (err) => Object.values(err.body?.fieldErrors || {})[0] || err.message;
 
@@ -68,14 +70,17 @@ export function SignupPage() {
       <label className="field"><span>이메일</span>
         <input type="email" required autoComplete="email" value={form.email} onChange={set('email')} />
       </label>
-      <label className="field"><span>비밀번호 (8자 이상)</span>
-        <input type="password" required minLength={8} maxLength={64} autoComplete="new-password" value={form.password} onChange={set('password')} />
-      </label>
       <label className="field"><span>닉네임 (2~20자)</span>
         <input required minLength={2} maxLength={20} value={form.nickname} onChange={set('nickname')} />
       </label>
+      <label className="field"><span>비밀번호</span>
+        <input type="password" required minLength={8} maxLength={64} autoComplete="new-password"
+               aria-describedby="signup-pw-rules" value={form.password} onChange={set('password')} />
+      </label>
+      <PasswordRules id="signup-pw-rules" password={form.password} email={form.email} nickname={form.nickname} />
       {error && <p className="error-text">{error}</p>}
-      <button type="submit" className="btn btn--primary btn--block">가입하기</button>
+      <button type="submit" className="btn btn--primary btn--block"
+              disabled={!isPasswordValid(form.password, { email: form.email, nickname: form.nickname })}>가입하기</button>
       <p className="muted center">이미 계정이 있나요? <Link to="/login">로그인</Link></p>
     </form>
   );

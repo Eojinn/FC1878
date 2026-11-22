@@ -72,6 +72,9 @@ public class MemberService {
         if (passwordEncoder.matches(newPassword, member.getPassword())) {
             throw new BusinessException(ErrorCode.SAME_PASSWORD);
         }
+        PasswordPolicy.personalInfoViolation(newPassword, member.getEmail(), member.getNickname()).ifPresent(reason -> {
+            throw new BusinessException(ErrorCode.WEAK_PASSWORD, reason);
+        });
         member.changePassword(passwordEncoder.encode(newPassword));
         refreshTokenService.revokeAll(memberId, currentRefreshToken);
     }
