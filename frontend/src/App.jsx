@@ -14,6 +14,7 @@ import PostDetailPage from './pages/PostDetailPage';
 import PostWritePage from './pages/PostWritePage';
 import RankingPage from './pages/RankingPage';
 import StandingsPage from './pages/StandingsPage';
+import TransfersPage from './pages/TransfersPage';
 
 export default function App() {
   return (
@@ -35,7 +36,7 @@ export default function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/me" element={<MyPage />} />
-          <Route path="/transfers" element={<ComingSoonPage title="이적시장" />} />
+          <Route path="/transfers" element={<TransfersPage />} />
           <Route path="/overseas" element={<OverseasPage />} />
           <Route path="*" element={<ComingSoonPage title="페이지를 찾을 수 없어요" />} />
         </Routes>

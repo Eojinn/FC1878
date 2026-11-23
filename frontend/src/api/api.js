@@ -30,6 +30,9 @@ export const api = {
   // 해외파
   overseas: () => request('/overseas'),
 
+  // 이적시장
+  transfers: (params) => request('/transfers', { params }),
+
   // 커뮤니티
   posts: (params) => request('/posts', { params }),
   post: (id) => request(`/posts/${id}`),

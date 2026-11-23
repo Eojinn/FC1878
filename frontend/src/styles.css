@@ -329,3 +329,38 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .pos-badge--MF { background: var(--ok-soft); color: var(--ok); }
 .pos-badge--FW { background: var(--accent-soft); color: var(--accent-ink); }
 .loan-tag { color: var(--warn); font-weight: 700; }
+
+/* ===== 이적시장 ===== */
+.tr-search input { width: 200px; }
+.tr-filters { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.tr-filters__right { flex-wrap: nowrap; }
+.chip--korean.is-active { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.tr-list-card { overflow: hidden; }
+.tr-head, .tr-row { display: grid; grid-template-columns: 56px minmax(170px, 1.1fr) minmax(360px, 2.4fr) minmax(150px, 1fr); align-items: center; gap: 16px; padding: 0 22px; }
+.tr-head { height: 42px; font-size: 12px; color: var(--sub); border-bottom: 1px solid var(--line); }
+.tr-head .center { text-align: center; }
+.tr-head .right { text-align: right; }
+.tr-list { list-style: none; margin: 0; padding: 0; }
+.tr-row { min-height: 74px; padding-top: 12px; padding-bottom: 12px; border-top: 1px solid var(--line); }
+.tr-row:first-child { border-top: 0; }
+.tr-row:hover { background: var(--card-hover); }
+.tr-row.is-korean { box-shadow: inset 3px 0 0 var(--accent); }
+.tr-row__date { color: var(--sub); font-size: 14px; }
+.tr-row__player { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tr-row__name { display: flex; flex-direction: column; min-width: 0; }
+.tr-row__name strong { font-size: 15px; }
+.tr-row__name .small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-row__move { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); align-items: center; gap: 8px; }
+.tr-arrow { text-align: center; color: var(--accent-ink); font-weight: 700; font-size: 18px; }
+.tr-club { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tr-club--right { flex-direction: row-reverse; text-align: right; }
+.tr-club__text { display: flex; flex-direction: column; min-width: 0; }
+.tr-club__text strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-club__text .small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-row__deal { display: flex; flex-direction: column; align-items: flex-end; text-align: right; gap: 2px; }
+.tr-fee { font-size: 17px; }
+.tr-type { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.tr-type--permanent { color: var(--text); background: var(--line); }
+.tr-type--loan { color: var(--info); background: var(--info-soft); }
+.tr-type--free { color: var(--ok); background: var(--ok-soft); }
+.tr-type--return { color: var(--warn); background: var(--warn-soft); }
