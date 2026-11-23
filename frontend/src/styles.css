@@ -273,3 +273,47 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .pw-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--sub); }
 .pw-checks li { display: flex; gap: 6px; }
 .pw-checks li.is-ok { color: #1D6B4F; }
+
+/* ===== 해외파 ===== */
+.overseas-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.overseas-head .muted { margin-top: 4px; }
+.overseas-map { padding: 12px; overflow: hidden; }
+.overseas-map__hint { margin: 8px 4px 0; }
+.chip__count { font-family: var(--font-num); font-weight: 700; margin-left: 4px; opacity: .7; }
+.btn--sm { height: 30px; padding: 0 12px; font-size: 13px; }
+.overseas-filter { display: flex; align-items: center; gap: 10px; margin: 0; }
+
+.world-map { position: relative; }
+.world-map svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+.world-map__sea { fill: #EEF1F5; }
+.world-map__country { fill: #D9DDE4; stroke: #FFFFFF; stroke-width: .6; transition: fill .15s; }
+.world-map__country.is-active { fill: #F3B5BF; cursor: pointer; }
+.world-map__country.is-active:hover, .world-map__country.is-selected { fill: #E86A7E; }
+.world-map__country.is-home { fill: var(--text); }
+.world-map__routes path { fill: none; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 4; opacity: .45; }
+.world-map__routes path.is-selected { stroke-width: 2; stroke-dasharray: none; opacity: .9; }
+.world-map__home circle { fill: #FFFFFF; stroke: var(--text); stroke-width: 2; }
+.world-map__home text { font-size: 12px; font-weight: 700; text-anchor: middle; fill: var(--text); paint-order: stroke; stroke: #FFFFFF; stroke-width: 3px; }
+.world-map__marker { cursor: pointer; outline: none; }
+.world-map__marker circle { fill: var(--accent); stroke: #FFFFFF; stroke-width: 1.5; transition: transform .15s; }
+.world-map__marker .world-map__pulse { fill: var(--accent); stroke: none; opacity: .18; }
+.world-map__marker text { fill: #FFFFFF; font-family: var(--font-num); font-size: 11px; font-weight: 700; text-anchor: middle; pointer-events: none; }
+.world-map__marker:hover circle, .world-map__marker:focus-visible circle { transform: scale(1.18); }
+.world-map__marker.is-selected circle:not(.world-map__pulse) { fill: var(--text); }
+.world-map__marker:focus-visible .world-map__pulse { opacity: .4; }
+.world-map__tip { position: absolute; transform: translate(-50%, calc(-100% - 16px)); background: var(--text); color: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13px; pointer-events: none; white-space: nowrap; box-shadow: 0 6px 18px rgba(0,0,0,.18); z-index: 2; }
+.world-map__tip .muted { color: #B9BEC8; }
+.world-map__tip ul { list-style: none; margin: 4px 0 0; padding: 0; }
+
+.overseas-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+.overseas-group { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.overseas-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.overseas-player { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
+.overseas-player:first-child { border-top: 0; }
+.overseas-player__body { display: flex; flex-direction: column; min-width: 0; }
+.pos-badge { flex: none; width: 34px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-num); font-size: 12px; font-weight: 700; }
+.pos-badge--GK { background: #FFF3D6; color: #8A5A0B; }
+.pos-badge--DF { background: #E3EEFF; color: #1F4E9E; }
+.pos-badge--MF { background: #E2F4EA; color: #1D6B4F; }
+.pos-badge--FW { background: var(--accent-soft); color: var(--accent); }
+.loan-tag { color: #8A5A0B; font-weight: 700; }

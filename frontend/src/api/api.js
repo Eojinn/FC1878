@@ -27,6 +27,9 @@ export const api = {
   predict: (fixtureId, pick) => request(`/fixtures/${fixtureId}/predictions`, { method: 'POST', body: { pick } }),
   rankings: (size = 50) => request('/rankings', { params: { size } }),
 
+  // 해외파
+  overseas: () => request('/overseas'),
+
   // 커뮤니티
   posts: (params) => request('/posts', { params }),
   post: (id) => request(`/posts/${id}`),
