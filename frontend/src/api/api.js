@@ -17,6 +17,7 @@ export const api = {
   // 축구 데이터
   leagues: () => request('/leagues'),
   teams: () => request('/teams'),
+  squad: (teamId) => request(`/teams/${teamId}/squad`),
   fixtures: (params) => request('/fixtures', { params }),
   fixture: (id) => request(`/fixtures/${id}`),
   featured: () => request('/fixtures/featured'),

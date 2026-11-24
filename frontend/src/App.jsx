@@ -14,6 +14,7 @@ import PostDetailPage from './pages/PostDetailPage';
 import PostWritePage from './pages/PostWritePage';
 import RankingPage from './pages/RankingPage';
 import StandingsPage from './pages/StandingsPage';
+import TacticBoardPage from './pages/TacticBoardPage';
 import TransfersPage from './pages/TransfersPage';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/me" element={<MyPage />} />
           <Route path="/transfers" element={<TransfersPage />} />
           <Route path="/overseas" element={<OverseasPage />} />
+          <Route path="/tacticboard" element={<TacticBoardPage />} />
           <Route path="*" element={<ComingSoonPage title="페이지를 찾을 수 없어요" />} />
         </Routes>
       </main>

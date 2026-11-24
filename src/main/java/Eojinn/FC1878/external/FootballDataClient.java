@@ -59,6 +59,19 @@ public class FootballDataClient {
         }
     }
 
+    /** 팀 스쿼드 (요청 1회). 실패하면 null */
+    public TeamDetail team(int externalTeamId) {
+        try {
+            return restClient.get()
+                    .uri("/teams/{id}", externalTeamId)
+                    .retrieve()
+                    .body(TeamDetail.class);
+        } catch (RestClientResponseException e) {
+            logError("team " + externalTeamId, e);
+            return null;
+        }
+    }
+
     /** 403(플랜에 없는 대회), 429(분당 요청 초과), 400(잘못된 키) 등은 응답 본문에 이유가 담겨 옴 */
     private void logError(String what, RestClientResponseException e) {
         log.warn("football-data.org 오류 ({}): HTTP {} {}", what, e.getStatusCode().value(),

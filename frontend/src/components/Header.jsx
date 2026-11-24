@@ -13,6 +13,7 @@ const MENU = [
   { to: '/community', label: '커뮤니티' },
   { to: '/transfers', label: '이적시장' },
   { to: '/overseas', label: '해외파' },
+  { to: '/tacticboard', label: '전술판' },
 ];
 
 export default function Header() {

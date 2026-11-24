@@ -36,6 +36,14 @@ public final class FootballDataDtos {
 
     // ---- /v4/matches ----
     @JsonIgnoreProperties(ignoreUnknown = true)
+    /** GET /teams/{id} 응답 중 스쿼드 부분 */
+    public record TeamDetail(Integer id, String name, List<SquadPlayer> squad) {
+    }
+
+    /** position 예: "Goalkeeper", "Centre-Back", "Defence", "Central Midfield", "Offence" */
+    public record SquadPlayer(Integer id, String name, String position, Integer shirtNumber, String nationality) {
+    }
+
     public record MatchesResponse(List<Match> matches) {
     }
 
