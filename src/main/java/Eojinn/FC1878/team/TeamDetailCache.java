@@ -31,7 +31,12 @@ public class TeamDetailCache {
         if (team.getExternalId() == null || props.key() == null || props.key().isBlank()) return null;
         Entry hit = cache.get(team.getId());
         if (hit != null && hit.expiresAt().isAfter(Instant.now())) return hit.detail();
-        TeamDetail detail = client.team(team.getExternalId());
+        TeamDetail detail;
+        try {
+            detail = client.team(team.getExternalId());
+        } catch (Exception e) { // 연결 문제 등이 있어도 팀 페이지의 나머지(순위·경기·선수단)는 보여 줌
+            detail = null;
+        }
         cache.put(team.getId(), new Entry(detail, Instant.now().plus(detail == null ? FAILURE_TTL : TTL)));
         return detail;
     }

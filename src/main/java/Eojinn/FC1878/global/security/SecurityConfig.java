@@ -3,6 +3,7 @@ package Eojinn.FC1878.global.security;
 import Eojinn.FC1878.oauth.OAuthLoginHandlers;
 import Eojinn.FC1878.oauth.RedisAuthorizationRequestRepository;
 import Eojinn.FC1878.oauth.SocialClientRegistrationRepository;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +43,9 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // 에러 응답(/error)은 누구나 받을 수 있게. 막혀 있으면 404·500 이 전부 401 로 바뀌어 보임
+                        .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD).permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**",
                                 "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET,

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "없는 주소예요. 서버를 최신 코드로 다시 실행했는지 확인해 주세요."),
+    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 오류가 났어요. 서버 로그를 확인해 주세요."),
     NEWS_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "뉴스를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
