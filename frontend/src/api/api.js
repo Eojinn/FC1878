@@ -19,6 +19,8 @@ export const api = {
   teams: () => request('/teams'),
   squad: (teamId) => request(`/teams/${teamId}/squad`),
   search: (q, limit = 20) => request('/search', { params: { q, limit } }),
+  teamProfile: (id) => request(`/teams/${id}/profile`),
+  player: (id) => request(`/players/${id}`),
   fixtures: (params) => request('/fixtures', { params }),
   fixture: (id) => request(`/fixtures/${id}`),
   featured: () => request('/fixtures/featured'),

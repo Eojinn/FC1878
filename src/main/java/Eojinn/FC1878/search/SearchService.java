@@ -62,7 +62,7 @@ public class SearchService {
             Long teamId = p.getTeam() != null ? p.getTeam().getId() : null;
             players.putIfAbsent(key(p.getName()), new PlayerResult(p.getName(),
                     Optional.ofNullable(p.getPosition()).orElse(""), p.getRole(), p.getTeamName(), teamId,
-                    p.getTeamLogoUrl(), p.getNationality(), "SQUAD", teamId != null ? "/fixtures?team=" + teamId : null));
+                    p.getTeamLogoUrl(), p.getNationality(), "SQUAD", "/players/" + p.getId()));
         }
         List<PlayerResult> playerList = new ArrayList<>(new LinkedHashSet<>(players.values()));
         return new SearchResponse(q, teams, playerList.subList(0, Math.min(size, playerList.size())));
@@ -70,7 +70,7 @@ public class SearchService {
 
     private static TeamResult team(Team t) {
         String sub = t.getKoreanName() != null && !t.getKoreanName().isBlank() ? t.getName() : null;
-        return new TeamResult(t.getId(), t.getDisplayName(), sub, t.getLogoUrl(), "/fixtures?team=" + t.getId());
+        return new TeamResult(t.getId(), t.getDisplayName(), sub, t.getLogoUrl(), "/teams/" + t.getId());
     }
 
     private static String key(String name) {
@@ -80,7 +80,7 @@ public class SearchService {
     public record SearchResponse(String query, List<TeamResult> teams, List<PlayerResult> players) {
     }
 
-    /** link: 누르면 이동할 화면 (팀 → 그 팀 경기일정) */
+    /** link: 누르면 이동할 화면 (팀 → 팀 페이지) */
     public record TeamResult(Long id, String name, String subName, String logoUrl, String link) {
     }
 

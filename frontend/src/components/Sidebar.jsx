@@ -20,7 +20,7 @@ export function StandingsMini({ league }) {
           {data?.slice(0, 6).map((s) => (
             <div className="mini-table__row" key={s.team.id}>
               <span className="rank-num">{s.rank}</span>
-              <span className="team-cell"><Emblem src={s.team.logoUrl} name={s.team.name} size={22} />{s.team.name}</span>
+              <Link to={`/teams/${s.team.id}`} className="team-cell team-cell--link"><Emblem src={s.team.logoUrl} name={s.team.name} size={22} />{s.team.name}</Link>
               <span className="muted">{s.played}</span>
               <strong className="num">{s.points}</strong>
             </div>

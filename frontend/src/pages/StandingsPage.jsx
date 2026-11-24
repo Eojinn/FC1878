@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import Emblem from '../components/Emblem';
 import StateBox from '../components/StateBox';
@@ -34,7 +34,7 @@ export default function StandingsPage() {
               {data?.map((s) => (
                 <tr key={s.team.id}>
                   <td className="rank-num">{s.rank}</td>
-                  <td className="left"><span className="team-cell"><Emblem src={s.team.logoUrl} name={s.team.name} size={24} />{s.team.name}</span></td>
+                  <td className="left"><Link to={`/teams/${s.team.id}`} className="team-cell team-cell--link"><Emblem src={s.team.logoUrl} name={s.team.name} size={24} />{s.team.name}</Link></td>
                   <td>{s.played}</td><td>{s.win}</td><td>{s.draw}</td><td>{s.lose}</td>
                   <td>{s.goalDiff > 0 ? `+${s.goalDiff}` : s.goalDiff}</td>
                   <td><strong className="num">{s.points}</strong></td>

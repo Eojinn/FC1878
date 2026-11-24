@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /** 선수 한 명. football-data.org 스쿼드 동기화로 채워짐 */
@@ -37,6 +38,8 @@ public class Player extends BaseTimeEntity {
     @Column(length = 60)
     private String nationality;
 
+    private LocalDate dateOfBirth;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -51,18 +54,28 @@ public class Player extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDateTime syncedAt;
 
+    /** "2001-09-05" → 날짜 (형식이 다르면 null) */
+    public static LocalDate parseDate(String s) {
+        try {
+            return s == null || s.length() < 10 ? null : LocalDate.parse(s.substring(0, 10));
+        } catch (java.time.format.DateTimeParseException e) {
+            return null;
+        }
+    }
+
     public static Player create(Integer externalId) {
         Player p = new Player();
         p.externalId = externalId;
         return p;
     }
 
-    public void update(String name, String position, Integer shirtNumber, String nationality,
+    public void update(String name, String position, Integer shirtNumber, String nationality, LocalDate dateOfBirth,
                        Team team, String teamName, String teamLogoUrl, LocalDateTime syncedAt) {
         this.name = name;
+        if (dateOfBirth != null) this.dateOfBirth = dateOfBirth;
         this.position = position;
         this.role = PlayerRole.of(position);
-        this.shirtNumber = shirtNumber;
+        if (shirtNumber != null || this.shirtNumber == null) this.shirtNumber = shirtNumber;
         this.nationality = nationality;
         this.team = team;
         this.teamName = team != null ? team.getDisplayName() : teamName;

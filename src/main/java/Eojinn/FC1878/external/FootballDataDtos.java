@@ -43,12 +43,25 @@ public final class FootballDataDtos {
     public record CompetitionTeam(Integer id, String name, String shortName, String crest, List<SquadPlayer> squad) {
     }
 
-    /** GET /teams/{id} 응답 중 스쿼드 부분 */
-    public record TeamDetail(Integer id, String name, List<SquadPlayer> squad) {
+    /** GET /teams/{id} 응답 (팀 정보 + 스쿼드) */
+    public record TeamDetail(Integer id, String name, String shortName, String crest, String address, String website,
+                             Integer founded, String clubColors, String venue, Coach coach, List<SquadPlayer> squad) {
     }
 
-    /** position 예: "Goalkeeper", "Centre-Back", "Defence", "Central Midfield", "Offence" */
-    public record SquadPlayer(Integer id, String name, String position, Integer shirtNumber, String nationality) {
+    public record Coach(String name, String nationality) {
+    }
+
+    /** position 예: "Goalkeeper", "Centre-Back", "Defence", "Central Midfield", "Offence". dateOfBirth 예: "2001-09-05" */
+    public record SquadPlayer(Integer id, String name, String position, String dateOfBirth, Integer shirtNumber,
+                              String nationality) {
+    }
+
+    /** GET /competitions/{code}/scorers (득점 순위: 골·도움·페널티·출전 경기) */
+    public record ScorersResponse(Competition competition, Season season, List<Scorer> scorers) {
+    }
+
+    public record Scorer(SquadPlayer player, TeamRef team, Integer playedMatches, Integer goals, Integer assists,
+                         Integer penalties) {
     }
 
     public record MatchesResponse(List<Match> matches) {

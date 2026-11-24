@@ -16,6 +16,8 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     List<Player> findByTeamId(Long teamId);
 
+    List<Player> findByExternalIdIn(java.util.Collection<Integer> externalIds);
+
     /** 이름에 검색어가 들어간 선수 (앞부분이 맞는 선수 먼저) */
     @Query("""
             select p from Player p left join fetch p.team

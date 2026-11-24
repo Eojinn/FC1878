@@ -24,7 +24,7 @@ import java.time.LocalDate;
 public class FootballSyncScheduler {
 
     /** 분당 10회 제한을 넘지 않도록 순위 요청 사이에 쉬는 시간 */
-    private static final long STANDINGS_GAP_MS = 7_000;
+    private static final long STANDINGS_GAP_MS = 500; // 실제 간격은 FootballDataClient 가 6.5초씩 지켜 줌
 
     private final FootballSyncService syncService;
     private final PredictionService predictionService;

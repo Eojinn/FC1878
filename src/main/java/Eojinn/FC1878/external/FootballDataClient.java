@@ -17,8 +17,12 @@ import java.util.List;
 @Component
 public class FootballDataClient {
 
+    /** 무료 플랜 분당 10회 → 모든 요청 사이를 최소 6.5초 띄움 (여러 동기화가 동시에 돌아도 안전) */
+    private static final long MIN_GAP_MS = 6_500;
+
     private final RestClient restClient;
     private final FootballApiProperties props;
+    private long lastRequestAt = 0;
 
     public FootballDataClient(FootballApiProperties props) {
         this.props = props;
@@ -28,8 +32,22 @@ public class FootballDataClient {
                 .build();
     }
 
+    /** 직전 요청에서 6.5초가 안 지났으면 기다림 */
+    private synchronized void throttle() {
+        long wait = lastRequestAt + MIN_GAP_MS - System.currentTimeMillis();
+        if (wait > 0) {
+            try {
+                Thread.sleep(wait);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        lastRequestAt = System.currentTimeMillis();
+    }
+
     /** 설정한 대회들의 기간 내 경기 (요청 1회) */
     public List<Match> matches(LocalDate from, LocalDate to) {
+        throttle();
         try {
             MatchesResponse res = restClient.get()
                     .uri(u -> u.path("/matches")
@@ -48,6 +66,7 @@ public class FootballDataClient {
 
     /** 대회 순위표. 실패하면 null */
     public StandingsResponse standings(String competitionCode) {
+        throttle();
         try {
             return restClient.get()
                     .uri("/competitions/{code}/standings", competitionCode)
@@ -61,6 +80,7 @@ public class FootballDataClient {
 
     /** 대회 참가 팀 목록 (요청 1회). 실패하면 null */
     public CompetitionTeamsResponse competitionTeams(String competitionCode) {
+        throttle();
         try {
             return restClient.get()
                     .uri("/competitions/{code}/teams", competitionCode)
@@ -74,6 +94,7 @@ public class FootballDataClient {
 
     /** 팀 스쿼드 (요청 1회). 실패하면 null */
     public TeamDetail team(int externalTeamId) {
+        throttle();
         try {
             return restClient.get()
                     .uri("/teams/{id}", externalTeamId)
@@ -81,6 +102,20 @@ public class FootballDataClient {
                     .body(TeamDetail.class);
         } catch (RestClientResponseException e) {
             logError("team " + externalTeamId, e);
+            return null;
+        }
+    }
+
+    /** 대회 득점 순위 (요청 1회). limit 명까지. 실패하면 null */
+    public ScorersResponse scorers(String competitionCode, int limit) {
+        throttle();
+        try {
+            return restClient.get()
+                    .uri(u -> u.path("/competitions/{code}/scorers").queryParam("limit", limit).build(competitionCode))
+                    .retrieve()
+                    .body(ScorersResponse.class);
+        } catch (RestClientResponseException e) {
+            logError("scorers " + competitionCode, e);
             return null;
         }
     }

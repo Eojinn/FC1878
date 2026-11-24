@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import FixtureBoard from '../components/FixtureBoard';
 import FixtureGroups from '../components/FixtureGroups';
@@ -28,7 +28,8 @@ export default function FixturesPage({ predictMode = false }) {
   return (
     <div className="stack page-narrow">
       <div className="section-head">
-        <h1 className="h1">{predictMode ? '승부예측' : teamId ? '내 팀 경기' : '경기일정'}</h1>
+        <h1 className="h1">{predictMode ? '승부예측' : teamId ? '팀 경기일정' : '경기일정'}</h1>
+        {teamId && <Link to={`/teams/${teamId}`} className="btn btn--ghost btn--sm">팀 정보·선수단 보기</Link>}
       </div>
       {predictMode && <p className="muted">예측할 경기를 골라 결과를 맞혀 보세요. 적중하면 10포인트를 드려요.</p>}
       {teamId ? <TeamFixtures teamId={teamId} /> : (

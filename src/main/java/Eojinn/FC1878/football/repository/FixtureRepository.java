@@ -34,6 +34,16 @@ public interface FixtureRepository extends JpaRepository<Fixture, Long> {
 
     List<Fixture> findByStatusAndSettledFalse(FixtureStatus status);
 
+    /** 한 팀의 경기 (상태별). 최근 결과는 kickoffAt 내림차순 Pageable 로, 다음 경기는 오름차순으로 */
+    @Query("""
+            select f from Fixture f
+              join fetch f.league join fetch f.homeTeam join fetch f.awayTeam
+            where (f.homeTeam.id = :teamId or f.awayTeam.id = :teamId) and f.status in :statuses
+            """)
+    List<Fixture> findByTeam(@Param("teamId") Long teamId,
+                             @Param("statuses") java.util.Collection<FixtureStatus> statuses,
+                             org.springframework.data.domain.Pageable pageable);
+
     @Query("""
             select f from Fixture f
               join fetch f.league join fetch f.homeTeam join fetch f.awayTeam

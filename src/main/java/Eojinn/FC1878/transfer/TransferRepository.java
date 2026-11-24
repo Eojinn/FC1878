@@ -8,6 +8,8 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<Transfer> findAllByOrderByTransferDateDescIdDesc();
 
+    List<Transfer> findTop5ByPlayerNameEnIgnoreCaseOrderByTransferDateDesc(String playerNameEn);
+
     List<Transfer> findTop10ByPlayerNameContainingOrPlayerNameEnContainingIgnoreCaseOrderByTransferDateDesc(
             String playerName, String playerNameEn);
 }

@@ -31,7 +31,7 @@ import java.util.Set;
 @ConditionalOnExpression("!'${football.api.key:}'.isBlank() and ${football.api.enabled:true}")
 public class PlayerSyncService {
 
-    private static final long GAP_MS = 8_000;
+    private static final long GAP_MS = 1_000; // 요청 간격은 FootballDataClient 가 6.5초씩 지켜 줌
 
     private final FootballDataClient client;
     private final FootballApiProperties props;
@@ -84,7 +84,7 @@ public class PlayerSyncService {
             for (SquadPlayer sp : squad) {
                 if (sp.id() == null || sp.name() == null) continue;
                 Player p = playerRepository.findByExternalId(sp.id()).orElseGet(() -> Player.create(sp.id()));
-                p.update(sp.name(), sp.position(), sp.shirtNumber(), sp.nationality(),
+                p.update(sp.name(), sp.position(), sp.shirtNumber(), sp.nationality(), Player.parseDate(sp.dateOfBirth()),
                         team, t.shortName() != null ? t.shortName() : t.name(), t.crest(), now);
                 playerRepository.save(p);
                 n++;

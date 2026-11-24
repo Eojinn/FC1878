@@ -476,3 +476,68 @@ a.search-player:hover { background: var(--card-hover); }
 .search-player__team { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; }
 .search-player__type { color: var(--sub); text-align: right; }
 .community-actions { display: flex; align-items: center; gap: 10px; }
+
+/* ===== 팀 페이지 ===== */
+.team-link { color: var(--text); border-radius: 14px; padding: 6px 10px; }
+.team-link:hover { background: var(--card-hover); }
+.team-link:hover strong { color: var(--accent-ink); }
+.team-cell--link { color: var(--text); }
+.team-cell--link:hover { color: var(--accent-ink); }
+.team-hero { padding: 24px 28px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.team-hero__main { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 6px; }
+.team-hero__main .h1 { margin: 0; }
+.team-hero__links { display: flex; flex-direction: column; gap: 8px; }
+.team-facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 8px 0 0; }
+.team-facts div { display: flex; flex-direction: column; }
+.team-facts dt { font-size: 12px; color: var(--sub); }
+.team-facts dd { margin: 0; font-size: 14px; font-weight: 700; }
+.team-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+.team-standing { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.team-standing__head { display: flex; align-items: center; gap: 8px; }
+.team-standing__head .link-btn { margin-left: auto; }
+.team-standing__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.team-standing__stats div, .player-totals div { display: flex; flex-direction: column; gap: 2px; }
+.num.big { font-size: 24px; }
+.team-standing__form { display: flex; align-items: center; gap: 12px; }
+.team-matches { padding: 18px 20px; }
+.team-matches ul { list-style: none; margin: 10px 0 0; padding: 0; }
+.team-matches li + li { border-top: 1px solid var(--line); }
+.team-match { display: grid; grid-template-columns: 92px 74px minmax(0, 1fr) 56px 24px; align-items: center; gap: 8px; padding: 9px 4px; color: var(--text); border-radius: 8px; }
+.team-match:hover { background: var(--card-hover); }
+.team-match__league { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-match__opp { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.team-match__score { text-align: center; font-weight: 700; }
+.team-leaders { padding: 18px 20px; }
+.team-leaders__cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
+.team-leaders ol { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.team-leaders li { font-size: 14px; }
+.team-leaders li a { color: var(--text); }
+.team-leaders li strong { float: right; }
+.team-squad { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.team-squad__head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.team-squad__head .h3 { margin: 0; }
+.squad-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.squad-table th, .squad-table td { padding: 8px 6px; text-align: center; border-bottom: 1px solid var(--line); }
+.squad-table thead th { font-size: 12px; color: var(--sub); font-weight: 500; }
+.squad-table .left { text-align: left; }
+.squad-table__group th { padding-top: 14px; font-size: 12px; color: var(--sub); font-weight: 700; border-bottom: 0; }
+.squad-table tbody tr:not(.squad-table__group):hover { background: var(--card-hover); }
+.squad-player { display: inline-flex; align-items: center; gap: 8px; }
+.squad-player a { color: var(--text); font-weight: 700; }
+.squad-player a:hover { color: var(--accent-ink); }
+
+/* ===== 선수 페이지 ===== */
+.player-hero { padding: 24px 28px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.player-hero__num { width: 84px; height: 84px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 700; background: var(--accent); color: var(--accent-text); flex: none; }
+.player-hero__main { flex: 1; min-width: 240px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.player-hero__main .h1 { margin: 0; }
+.player-hero__team { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); color: var(--text); }
+.player-hero__team span { display: flex; flex-direction: column; }
+a.player-hero__team:hover { border-color: var(--accent); }
+.player-stats { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.player-stats .h3 { margin: 0; }
+.player-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 4px 0; }
+.player-transfers { list-style: none; margin: 0; padding: 0; }
+.player-transfers li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.player-transfers li:first-child { border-top: 0; }
+@media (max-width: 1000px) { .team-grid { grid-template-columns: minmax(0, 1fr); } }
