@@ -21,6 +21,8 @@ export const api = {
   search: (q, limit = 20) => request('/search', { params: { q, limit } }),
   teamProfile: (id) => request(`/teams/${id}/profile`),
   player: (id) => request(`/players/${id}`),
+  playerCareer: (id) => request(`/players/${id}/career`),
+  career: (params) => request('/career', { params }),
   fixtures: (params) => request('/fixtures', { params }),
   fixture: (id) => request(`/fixtures/${id}`),
   featured: () => request('/fixtures/featured'),

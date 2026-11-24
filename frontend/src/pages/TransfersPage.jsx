@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import Emblem from '../components/Emblem';
 import StateBox from '../components/StateBox';
@@ -28,7 +28,9 @@ function TransferRow({ t }) {
       <div className="tr-row__player">
         <span className={'pos-badge pos-badge--' + t.position} title={POSITION_LABEL[t.position]}>{t.position}</span>
         <span className="tr-row__name">
-          <strong>{t.playerName}</strong>
+          <Link className="player-link" to={t.playerNameEn
+            ? `/career?name=${encodeURIComponent(t.playerNameEn)}&lang=en${t.korean ? '&korea=true' : ''}`
+            : `/career?name=${encodeURIComponent(t.playerName)}&lang=ko${t.korean ? '&korea=true' : ''}`}><strong>{t.playerName}</strong></Link>
           <span className="muted small">{[t.nationality, t.playerNameEn].filter(Boolean).join(' · ')}</span>
         </span>
       </div>

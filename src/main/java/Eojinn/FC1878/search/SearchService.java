@@ -47,14 +47,15 @@ public class SearchService {
         Map<String, PlayerResult> players = new LinkedHashMap<>();
         for (OverseasPlayer o : overseasRepository.findTop10ByNameContainingOrderBySortOrder(q)) {
             players.putIfAbsent(key(o.getName()), new PlayerResult(o.getName(), o.getClub() + " · " + o.getLeague(),
-                    o.getPosition().name(), o.getClub(), null, null, "대한민국", "OVERSEAS", "/overseas"));
+                    o.getPosition().name(), o.getClub(), null, null, "대한민국", "OVERSEAS", careerLink(o.getName(), "ko", true)));
         }
         for (Transfer t : transferRepository
                 .findTop10ByPlayerNameContainingOrPlayerNameEnContainingIgnoreCaseOrderByTransferDateDesc(q, q)) {
             PlayerResult r = new PlayerResult(t.getPlayerName(),
                     "최근 이적: " + t.getFromClub() + " → " + t.getToClub(),
                     t.getPosition().name(), t.getToClub(), null, null, t.getNationality(), "TRANSFER",
-                    "/transfers?window=all&q=" + URLEncoder.encode(t.getPlayerName(), StandardCharsets.UTF_8));
+                    t.getPlayerNameEn() != null ? careerLink(t.getPlayerNameEn(), "en", t.isKorean())
+                            : careerLink(t.getPlayerName(), "ko", t.isKorean()));
             players.putIfAbsent(key(t.getPlayerName()), r);
             if (t.getPlayerNameEn() != null) players.putIfAbsent(key(t.getPlayerNameEn()), r); // 영문 스쿼드 결과와 겹치지 않게
         }
@@ -71,6 +72,12 @@ public class SearchService {
     private static TeamResult team(Team t) {
         String sub = t.getKoreanName() != null && !t.getKoreanName().isBlank() ? t.getName() : null;
         return new TeamResult(t.getId(), t.getDisplayName(), sub, t.getLogoUrl(), "/teams/" + t.getId());
+    }
+
+    /** DB에 없는 선수 → 커리어 페이지 (/career?name=…) */
+    static String careerLink(String name, String lang, boolean korea) {
+        return "/career?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&lang=" + lang
+                + (korea ? "&korea=true" : "");
     }
 
     private static String key(String name) {

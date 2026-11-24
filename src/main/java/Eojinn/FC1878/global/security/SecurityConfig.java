@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**",
                                 "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/leagues/**", "/api/teams/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**", "/api/overseas/**", "/api/transfers/**", "/api/news/**", "/api/search/**", "/api/search", "/api/players/**").permitAll()
+                                "/api/leagues/**", "/api/teams/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**", "/api/overseas/**", "/api/transfers/**", "/api/news/**", "/api/search/**", "/api/search", "/api/players/**", "/api/career").permitAll()
                         .anyRequest().authenticated())
                 // 소셜 로그인: /oauth2/authorization/{google|kakao|apple} 로 시작 → /login/oauth2/code/{...} 로 돌아옴
                 .oauth2Login(o -> o

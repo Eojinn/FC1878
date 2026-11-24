@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/api';
+import CareerSection from '../components/CareerSection';
 import Emblem from '../components/Emblem';
 import StateBox from '../components/StateBox';
 import { useAsync } from '../hooks/useAsync';
@@ -11,6 +12,8 @@ const dateText = (d) => (d ? `${d.slice(0, 4)}.${d.slice(5, 7)}.${d.slice(8, 10)
 export default function PlayerPage() {
   const { id } = useParams();
   const { data: p, loading, error } = useAsync(() => api.player(id), [id]);
+  // 커리어는 외부(Wikidata)에서 가져와서 느릴 수 있으니 따로 불러옴
+  const career = useAsync(() => api.playerCareer(id), [id]);
   const total = (p?.stats ?? []).reduce((acc, s) => ({
     played: acc.played + (s.played ?? 0), goals: acc.goals + s.goals, assists: acc.assists + (s.assists ?? 0),
   }), { played: 0, goals: 0, assists: 0 });
@@ -31,6 +34,8 @@ export default function PlayerPage() {
                   <div><dt>포지션</dt><dd>{POSITION_LABEL[p.role]}{p.position && p.position !== POSITION_LABEL[p.role] ? ` · ${p.position}` : ''}</dd></div>
                   <div><dt>국적</dt><dd>{p.nationality ?? '-'}</dd></div>
                   <div><dt>생년월일</dt><dd>{dateText(p.dateOfBirth)}{p.age != null ? ` (${p.age}세)` : ''}</dd></div>
+                  {career.data?.heightCm && <div><dt>키</dt><dd>{career.data.heightCm}cm</dd></div>}
+                  {career.data?.koreanName && <div><dt>한글 이름</dt><dd>{career.data.koreanName}</dd></div>}
                 </dl>
               </div>
               {teamName && (
@@ -77,6 +82,8 @@ export default function PlayerPage() {
                 <p className="muted small">아직 기록이 없어요. 대회별 득점 순위(상위 100명)에 들면 골·도움·출전 기록이 표시돼요.</p>
               )}
             </section>
+
+            <CareerSection data={career.data} loading={career.loading} error={career.error} />
 
             {p.transfers.length > 0 && (
               <section className="card player-stats" aria-label="최근 이적">

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/api';
 import StateBox from '../components/StateBox';
 import WorldMap from '../components/WorldMap';
@@ -100,7 +101,7 @@ export default function OverseasPage() {
                   <li key={p.id} className="overseas-player">
                     <span className={'pos-badge pos-badge--' + p.position} title={POSITION_LABEL[p.position]}>{p.position}</span>
                     <div className="overseas-player__body">
-                      <strong>{p.name}</strong>
+                      <Link to={`/career?name=${encodeURIComponent(p.name)}&lang=ko&korea=true`} className="player-link"><strong>{p.name}</strong></Link>
                       <span className="muted small">
                         {p.club} · {p.league}
                         {p.onLoan && <> · <span className="loan-tag">{p.parentClub}에서 임대</span></>}
