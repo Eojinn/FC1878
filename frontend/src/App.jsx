@@ -8,6 +8,7 @@ import FixtureDetailPage from './pages/FixtureDetailPage';
 import FixturesPage from './pages/FixturesPage';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
+import NewsPage from './pages/NewsPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import OverseasPage from './pages/OverseasPage';
 import PostDetailPage from './pages/PostDetailPage';
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/me" element={<MyPage />} />
+          <Route path="/news" element={<NewsPage />} />
           <Route path="/transfers" element={<TransfersPage />} />
           <Route path="/overseas" element={<OverseasPage />} />
           <Route path="/tacticboard" element={<TacticBoardPage />} />

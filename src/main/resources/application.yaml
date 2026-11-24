@@ -34,6 +34,12 @@ football:
     standings-sync-ms: 10800000             # 순위 동기화 주기 (3시간, 대회 수만큼 요청)
 
 app:
+  news:
+    # 해외축구 뉴스: 네이버 API 허브 뉴스 검색 (키가 비어 있으면 샘플 기사 표시)
+    naver-base-url: https://naverapihub.apigw.ntruss.com
+    naver-client-id: ${NAVER_CLIENT_ID:}
+    naver-client-secret: ${NAVER_CLIENT_SECRET:}
+    cache-minutes: 10            # 같은 검색은 10분 동안 저장해 두고 씀
   auth:
     cookie-secure: ${COOKIE_SECURE:false}   # https 로 배포하면 true
     login-max-attempts: 5        # 같은 이메일로 5번 틀리면

@@ -31,6 +31,9 @@ export const api = {
   // 해외파
   overseas: () => request('/overseas'),
 
+  // 해외축구 뉴스
+  news: (params) => request('/news', { params }),
+
   // 이적시장
   transfers: (params) => request('/transfers', { params }),
 
