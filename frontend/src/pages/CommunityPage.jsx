@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import StateBox from '../components/StateBox';
@@ -10,6 +11,9 @@ export default function CommunityPage() {
   const keyword = params.get('keyword') || '';
   const sort = params.get('sort') || 'latest';
   const page = Number(params.get('page') || 0);
+
+  const [input, setInput] = useState(keyword);
+  useEffect(() => setInput(keyword), [keyword]);
 
   const { data, loading, error } = useAsync(
     () => api.posts({ category, keyword, sort, page, size: 20 }), [category, keyword, sort, page]);
@@ -25,7 +29,13 @@ export default function CommunityPage() {
     <div className="stack page-narrow">
       <div className="section-head">
         <h1 className="h1">커뮤니티</h1>
-        <Link to="/community/write" className="btn btn--primary">글쓰기</Link>
+        <div className="community-actions">
+          <form className="search" role="search" onSubmit={(e) => { e.preventDefault(); update({ keyword: input.trim() }); }}>
+            <span aria-hidden="true">⌕</span>
+            <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="게시글 검색" aria-label="게시글 검색" />
+          </form>
+          <Link to="/community/write" className="btn btn--primary">글쓰기</Link>
+        </div>
       </div>
       {keyword && (
         <p className="muted">‘{keyword}’ 검색 결과 · <button type="button" className="link-btn" onClick={() => update({ keyword: '' })}>검색 지우기</button></p>

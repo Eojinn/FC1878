@@ -36,6 +36,13 @@ public final class FootballDataDtos {
 
     // ---- /v4/matches ----
     @JsonIgnoreProperties(ignoreUnknown = true)
+    /** GET /competitions/{code}/teams 응답 (팀마다 squad 가 오면 그대로 사용) */
+    public record CompetitionTeamsResponse(List<CompetitionTeam> teams) {
+    }
+
+    public record CompetitionTeam(Integer id, String name, String shortName, String crest, List<SquadPlayer> squad) {
+    }
+
     /** GET /teams/{id} 응답 중 스쿼드 부분 */
     public record TeamDetail(Integer id, String name, List<SquadPlayer> squad) {
     }

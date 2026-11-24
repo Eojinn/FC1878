@@ -7,4 +7,6 @@ import java.util.List;
 public interface OverseasPlayerRepository extends JpaRepository<OverseasPlayer, Long> {
 
     List<OverseasPlayer> findAllByOrderBySortOrderAscIdAsc();
+
+    List<OverseasPlayer> findTop10ByNameContainingOrderBySortOrder(String name);
 }

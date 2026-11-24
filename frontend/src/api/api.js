@@ -18,6 +18,7 @@ export const api = {
   leagues: () => request('/leagues'),
   teams: () => request('/teams'),
   squad: (teamId) => request(`/teams/${teamId}/squad`),
+  search: (q, limit = 20) => request('/search', { params: { q, limit } }),
   fixtures: (params) => request('/fixtures', { params }),
   fixture: (id) => request(`/fixtures/${id}`),
   featured: () => request('/fixtures/featured'),

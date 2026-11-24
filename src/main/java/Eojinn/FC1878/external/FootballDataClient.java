@@ -59,6 +59,19 @@ public class FootballDataClient {
         }
     }
 
+    /** 대회 참가 팀 목록 (요청 1회). 실패하면 null */
+    public CompetitionTeamsResponse competitionTeams(String competitionCode) {
+        try {
+            return restClient.get()
+                    .uri("/competitions/{code}/teams", competitionCode)
+                    .retrieve()
+                    .body(CompetitionTeamsResponse.class);
+        } catch (RestClientResponseException e) {
+            logError("competition teams " + competitionCode, e);
+            return null;
+        }
+    }
+
     /** 팀 스쿼드 (요청 1회). 실패하면 null */
     public TeamDetail team(int externalTeamId) {
         try {

@@ -11,6 +11,10 @@ spring:
         default_batch_fetch_size: 100
   flyway:
     enabled: true
+  task:
+    scheduling:
+      pool:
+        size: 2                 # 선수 동기화(오래 걸림)가 경기 동기화를 막지 않도록
   docker:
     compose:
       lifecycle-management: start-only

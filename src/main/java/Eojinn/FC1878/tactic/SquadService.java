@@ -8,6 +8,9 @@ import Eojinn.FC1878.football.domain.Team;
 import Eojinn.FC1878.football.repository.TeamRepository;
 import Eojinn.FC1878.global.error.BusinessException;
 import Eojinn.FC1878.global.error.ErrorCode;
+import Eojinn.FC1878.player.Player;
+import Eojinn.FC1878.player.PlayerRepository;
+import Eojinn.FC1878.player.PlayerRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,11 +36,21 @@ public class SquadService {
     private final TeamRepository teamRepository;
     private final FootballDataClient client;
     private final FootballApiProperties props;
+    private final PlayerRepository playerRepository;
     private final Map<Long, Cached> cache = new ConcurrentHashMap<>();
 
     public List<SquadPlayerResponse> squad(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT, "팀을 찾을 수 없어요."));
+        // 하루 한 번 동기화한 선수 목록이 있으면 API 를 부르지 않고 그걸 씀
+        List<Player> stored = playerRepository.findByTeamId(teamId);
+        if (!stored.isEmpty()) {
+            return stored.stream()
+                    .map(p -> new SquadPlayerResponse(p.getExternalId(), p.getName(), p.getShirtNumber(), p.getRole(),
+                            p.getPosition(), p.getNationality()))
+                    .sorted(ORDER)
+                    .toList();
+        }
         if (team.getExternalId() == null || props.key() == null || props.key().isBlank()) return List.of();
 
         Cached hit = cache.get(teamId);
@@ -51,35 +63,21 @@ public class SquadService {
         }
         List<SquadPlayerResponse> players = detail.squad().stream()
                 .map(SquadService::toResponse)
-                .sorted(Comparator.comparing((SquadPlayerResponse p) -> roleOrder(p.role()))
-                        .thenComparing(p -> p.number() == null ? 999 : p.number()))
+                .sorted(ORDER)
                 .toList();
         cache.put(teamId, new Cached(players, Instant.now().plus(CACHE_TTL)));
         return players;
     }
 
+    private static final Comparator<SquadPlayerResponse> ORDER =
+            Comparator.comparing((SquadPlayerResponse p) -> PlayerRole.order(p.role()))
+                    .thenComparing(p -> p.number() == null ? 999 : p.number());
+
     private static SquadPlayerResponse toResponse(SquadPlayer p) {
-        return new SquadPlayerResponse(p.id(), p.name(), p.shirtNumber(), role(p.position()), p.position(), p.nationality());
+        return new SquadPlayerResponse(p.id(), p.name(), p.shirtNumber(), PlayerRole.of(p.position()), p.position(), p.nationality());
     }
 
-    /** football-data 포지션 → GK / DF / MF / FW */
-    static String role(String position) {
-        if (position == null) return "MF";
-        String s = position.toLowerCase(Locale.ROOT);
-        if (s.contains("goalkeeper")) return "GK";
-        if (s.contains("back") || s.contains("defen")) return "DF";
-        if (s.contains("forward") || s.contains("offence") || s.contains("winger") || s.contains("striker")) return "FW";
-        return "MF";
-    }
 
-    private static int roleOrder(String role) {
-        return switch (role) {
-            case "GK" -> 0;
-            case "DF" -> 1;
-            case "MF" -> 2;
-            default -> 3;
-        };
-    }
 
     public record SquadPlayerResponse(Integer id, String name, Integer number, String role, String position,
                                       String nationality) {

@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { SearchIcon } from './Icons';
 import Emblem from './Emblem';
+import HeaderSearch from './HeaderSearch';
 
 const MENU = [
   { to: '/', label: '홈', end: true },
@@ -19,13 +18,6 @@ const MENU = [
 
 export default function Header() {
   const { user, logout } = useAuth();
-  const [q, setQ] = useState('');
-  const navigate = useNavigate();
-
-  const onSearch = (e) => {
-    e.preventDefault();
-    if (q.trim()) navigate(`/community?keyword=${encodeURIComponent(q.trim())}`);
-  };
 
   return (
     <header className="header">
@@ -37,12 +29,7 @@ export default function Header() {
           </Link>
 
           <div className="header__actions">
-            <form className="search" role="search" onSubmit={onSearch}>
-              <SearchIcon />
-              <label className="sr-only" htmlFor="site-search">검색</label>
-              <input id="site-search" type="search" placeholder="게시글 검색" value={q}
-                     onChange={(e) => setQ(e.target.value)} />
-            </form>
+            <HeaderSearch />
             {user ? (
               <>
                 <Link to="/me" className="user-chip">

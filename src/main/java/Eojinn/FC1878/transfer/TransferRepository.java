@@ -7,4 +7,7 @@ import java.util.List;
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<Transfer> findAllByOrderByTransferDateDescIdDesc();
+
+    List<Transfer> findTop10ByPlayerNameContainingOrPlayerNameEnContainingIgnoreCaseOrderByTransferDateDesc(
+            String playerName, String playerNameEn);
 }
