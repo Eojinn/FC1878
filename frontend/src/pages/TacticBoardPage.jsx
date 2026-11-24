@@ -146,6 +146,7 @@ export default function TacticBoardPage() {
   const [showNames, setShowNames] = useState(true);
   const [selected, setSelected] = useState(null);
   const [panelSide, setPanelSide] = useState('home');
+  const [sideTab, setSideTab] = useState('team');
   const [squads, setSquads] = useState({ home: null, away: null });
   const [squadLoading, setSquadLoading] = useState({ home: false, away: false });
   const [benchQuery, setBenchQuery] = useState('');
@@ -286,7 +287,7 @@ export default function TacticBoardPage() {
   const team = board.teams[panelSide];
 
   return (
-    <div className="stack">
+    <div className="stack tb-page">
       <div className="section-head">
         <div>
           <h1 className="h1">전술판</h1>
@@ -297,60 +298,6 @@ export default function TacticBoardPage() {
       <MatchPicker onPick={pickMatch} />
 
       <div className="tb-layout">
-        {/* 왼쪽: 팀 설정 */}
-        <aside className="card tb-panel" aria-label="팀 설정">
-          <div className="tb-tabs" role="tablist">
-            {['home', 'away'].map((side) => (
-              <button key={side} type="button" role="tab" aria-selected={panelSide === side}
-                      className={'tb-tab' + (panelSide === side ? ' is-active' : '')} onClick={() => setPanelSide(side)}>
-                <span className="tb-dot" style={{ background: board.teams[side].color }} />
-                {side === 'home' ? '홈' : '원정'}
-              </button>
-            ))}
-          </div>
-
-          <label className="field"><span>팀</span>
-            <select value={team.teamId ?? ''} onChange={(e) => chooseTeam(panelSide, e.target.value)}>
-              <option value="">팀 선택 안 함 ({panelSide === 'home' ? '홈' : '원정'})</option>
-              {(teams ?? []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </label>
-
-          <label className="field"><span>포메이션</span>
-            <select value={team.formation} onChange={(e) => changeFormation(panelSide, e.target.value)}>
-              {FORMATIONS.map((f) => <option key={f} value={f}>{f}</option>)}
-            </select>
-          </label>
-
-          <div className="field"><span>유니폼 색</span>
-            <div className="tb-swatches" role="radiogroup" aria-label="유니폼 색">
-              {TEAM_COLORS.map((c) => (
-                <button key={c} type="button" role="radio" aria-checked={team.color === c} aria-label={c}
-                        className={'tb-swatch' + (team.color === c ? ' is-active' : '')} style={{ background: c }}
-                        onClick={() => updateTeam(panelSide, (t) => ({ ...t, color: c }))} />
-              ))}
-            </div>
-          </div>
-
-          <button type="button" className="btn btn--ghost btn--sm" onClick={() => resetPositions(panelSide)}>
-            포메이션 위치로 되돌리기
-          </button>
-
-          <hr className="tb-sep" />
-
-          <div className="field"><span>피치에 보이기</span>
-            <div className="chips">
-              {[['both', '두 팀'], ['home', '홈만'], ['away', '원정만']].map(([k, l]) => (
-                <button key={k} type="button" className={'chip chip--sm' + (board.show === k ? ' is-active' : '')}
-                        onClick={() => set((b) => ({ ...b, show: k }))}>{l}</button>
-              ))}
-            </div>
-          </div>
-          <label className="tb-check">
-            <input type="checkbox" checked={showNames} onChange={(e) => setShowNames(e.target.checked)} /> 선수 이름 표시
-          </label>
-        </aside>
-
         {/* 가운데: 도구 + 피치 */}
         <div className="tb-center" ref={wrapRef}>
           <div className="card tb-toolbar" role="toolbar" aria-label="전술판 도구">
@@ -403,73 +350,137 @@ export default function TacticBoardPage() {
               ))}
             </div>
             <TacticPitch ref={svgRef} board={board} tool={tool} color={color} colors={DRAW_COLORS}
-                         showNames={showNames} selected={selected} onSelect={setSelected} history={history} />
+                         showNames={showNames} selected={selected} history={history}
+                         onSelect={(sel) => { setSelected(sel); if (sel) setSideTab('players'); }} />
             {notice && <p className="tb-notice" role="status">{notice}</p>}
           </div>
           <p className="muted small">
-            이동 도구로 선수·공을 끌어 옮기고, 선수를 누른 다음 오른쪽 벤치에서 교체할 수 있어요.
+            이동 도구로 선수·공을 끌어 옮기고, 선수를 누르면 오른쪽 ‘선수 교체’에서 벤치 선수와 바꿀 수 있어요.
             판은 이 브라우저에 자동으로 저장돼요.
           </p>
         </div>
 
-        {/* 오른쪽: 선택한 선수 + 벤치 */}
-        <aside className="card tb-panel" aria-label="선수 교체">
-          {selectedPlayer ? (
-            <div className="tb-selected">
-              <strong className="small muted">선택한 선수 · {selected.side === 'home' ? '홈' : '원정'}</strong>
-              <div className="tb-selected__row">
-                <label className="field tb-num"><span>번호</span>
-                  <input type="number" min={1} max={99} value={selectedPlayer.number ?? ''}
-                         onFocus={checkpoint} onBlur={dropCheckpointIfUnchanged}
-                         onChange={(e) => editSelected('number', e.target.value === '' ? null : Number(e.target.value))} />
-                </label>
-                <label className="field grow"><span>이름</span>
-                  <input maxLength={30} value={selectedPlayer.name} placeholder="직접 입력"
-                         onFocus={checkpoint} onBlur={dropCheckpointIfUnchanged}
-                         onChange={(e) => editSelected('name', e.target.value)} />
-                </label>
+        {/* 오른쪽: 팀 설정 / 선수 교체 탭 */}
+        <aside className="card tb-panel tb-side" aria-label="전술판 설정">
+          <div className="tb-tabs tb-tabs--main" role="tablist">
+            <button type="button" role="tab" aria-selected={sideTab === 'team'}
+                    className={'tb-tab' + (sideTab === 'team' ? ' is-active' : '')} onClick={() => setSideTab('team')}>팀 설정</button>
+            <button type="button" role="tab" aria-selected={sideTab === 'players'}
+                    className={'tb-tab' + (sideTab === 'players' ? ' is-active' : '')} onClick={() => setSideTab('players')}>선수 교체</button>
+          </div>
+          {sideTab === 'team' ? (
+            <>
+            <div className="tb-tabs" role="tablist">
+              {['home', 'away'].map((side) => (
+                <button key={side} type="button" role="tab" aria-selected={panelSide === side}
+                        className={'tb-tab' + (panelSide === side ? ' is-active' : '')} onClick={() => setPanelSide(side)}>
+                  <span className="tb-dot" style={{ background: board.teams[side].color }} />
+                  {side === 'home' ? '홈' : '원정'}
+                </button>
+              ))}
+            </div>
+
+            <label className="field"><span>팀</span>
+              <select value={team.teamId ?? ''} onChange={(e) => chooseTeam(panelSide, e.target.value)}>
+                <option value="">팀 선택 안 함 ({panelSide === 'home' ? '홈' : '원정'})</option>
+                {(teams ?? []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </label>
+
+            <label className="field"><span>포메이션</span>
+              <select value={team.formation} onChange={(e) => changeFormation(panelSide, e.target.value)}>
+                {FORMATIONS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </label>
+
+            <div className="field"><span>유니폼 색</span>
+              <div className="tb-swatches" role="radiogroup" aria-label="유니폼 색">
+                {TEAM_COLORS.map((c) => (
+                  <button key={c} type="button" role="radio" aria-checked={team.color === c} aria-label={c}
+                          className={'tb-swatch' + (team.color === c ? ' is-active' : '')} style={{ background: c }}
+                          onClick={() => updateTeam(panelSide, (t) => ({ ...t, color: c }))} />
+                ))}
               </div>
             </div>
+
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => resetPositions(panelSide)}>
+              포메이션 위치로 되돌리기
+            </button>
+
+            <hr className="tb-sep" />
+
+            <div className="field"><span>피치에 보이기</span>
+              <div className="chips">
+                {[['both', '두 팀'], ['home', '홈만'], ['away', '원정만']].map(([k, l]) => (
+                  <button key={k} type="button" className={'chip chip--sm' + (board.show === k ? ' is-active' : '')}
+                          onClick={() => set((b) => ({ ...b, show: k }))}>{l}</button>
+                ))}
+              </div>
+            </div>
+            <label className="tb-check">
+              <input type="checkbox" checked={showNames} onChange={(e) => setShowNames(e.target.checked)} /> 선수 이름 표시
+            </label>
+            </>
           ) : (
-            <p className="muted small">피치에서 선수를 누르면 번호·이름을 바꾸거나 벤치 선수와 교체할 수 있어요.</p>
-          )}
-
-          <hr className="tb-sep" />
-
-          <div className="tb-bench-head">
-            <strong>{board.teams[benchSide].name} 벤치 · 스쿼드</strong>
-            {squads[benchSide] && <span className="muted small num">{bench.length}명</span>}
-          </div>
-          <div className="search tb-bench-search">
-            <span aria-hidden="true">⌕</span>
-            <input value={benchQuery} onChange={(e) => setBenchQuery(e.target.value)} placeholder="선수 검색" aria-label="벤치 선수 검색" />
-          </div>
-          <div className="tb-bench">
-            {squadLoading[benchSide] && <p className="muted small">스쿼드 불러오는 중…</p>}
-            {!squadLoading[benchSide] && !board.teams[benchSide].teamId && (
-              <p className="muted small">왼쪽에서 팀을 고르거나 위에서 경기를 고르면 스쿼드가 나와요.</p>
-            )}
-            {!squadLoading[benchSide] && board.teams[benchSide].teamId && squads[benchSide]?.length === 0 && (
-              <p className="muted small">이 팀의 스쿼드 정보를 불러오지 못했어요. 선수를 눌러 이름을 직접 입력해 주세요.</p>
-            )}
-            {ROLES.map((role) => {
-              const list = bench.filter((p) => p.role === role);
-              if (!list.length) return null;
-              return (
-                <div key={role} className="tb-bench__group">
-                  <span className="tb-bench__role">{POSITION_LABEL[role]}</span>
-                  {list.map((p) => (
-                    <button key={p.id} type="button" className="tb-bench__player" onClick={() => substitute(p)}
-                            title={selectedPlayer ? `${selectedPlayer.name || selectedPlayer.number} 대신 투입` : '피치에서 선수를 먼저 누르세요'}>
-                      <span className="num tb-bench__num">{p.number ?? '-'}</span>
-                      <span className="tb-bench__name">{p.name}</span>
-                      <span className="muted small">{p.position}</span>
-                    </button>
-                  ))}
+            <>
+            {selectedPlayer ? (
+              <div className="tb-selected">
+                <strong className="small muted">선택한 선수 · {selected.side === 'home' ? '홈' : '원정'}</strong>
+                <div className="tb-selected__row">
+                  <label className="field tb-num"><span>번호</span>
+                    <input type="number" min={1} max={99} value={selectedPlayer.number ?? ''}
+                           onFocus={checkpoint} onBlur={dropCheckpointIfUnchanged}
+                           onChange={(e) => editSelected('number', e.target.value === '' ? null : Number(e.target.value))} />
+                  </label>
+                  <label className="field grow"><span>이름</span>
+                    <input maxLength={30} value={selectedPlayer.name} placeholder="직접 입력"
+                           onFocus={checkpoint} onBlur={dropCheckpointIfUnchanged}
+                           onChange={(e) => editSelected('name', e.target.value)} />
+                  </label>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            ) : (
+              <p className="muted small">피치에서 선수를 누르면 번호·이름을 바꾸거나 벤치 선수와 교체할 수 있어요.</p>
+            )}
+
+            <hr className="tb-sep" />
+
+            <div className="tb-bench-head">
+              <strong>{board.teams[benchSide].name} 벤치 · 스쿼드</strong>
+              {squads[benchSide] && <span className="muted small num">{bench.length}명</span>}
+            </div>
+            <div className="search tb-bench-search">
+              <span aria-hidden="true">⌕</span>
+              <input value={benchQuery} onChange={(e) => setBenchQuery(e.target.value)} placeholder="선수 검색" aria-label="벤치 선수 검색" />
+            </div>
+            <div className="tb-bench">
+              {squadLoading[benchSide] && <p className="muted small">스쿼드 불러오는 중…</p>}
+              {!squadLoading[benchSide] && !board.teams[benchSide].teamId && (
+                <p className="muted small">왼쪽에서 팀을 고르거나 위에서 경기를 고르면 스쿼드가 나와요.</p>
+              )}
+              {!squadLoading[benchSide] && board.teams[benchSide].teamId && squads[benchSide]?.length === 0 && (
+                <p className="muted small">이 팀의 스쿼드 정보를 불러오지 못했어요. 선수를 눌러 이름을 직접 입력해 주세요.</p>
+              )}
+              {ROLES.map((role) => {
+                const list = bench.filter((p) => p.role === role);
+                if (!list.length) return null;
+                return (
+                  <div key={role} className="tb-bench__group">
+                    <span className="tb-bench__role">{POSITION_LABEL[role]}</span>
+                    {list.map((p) => (
+                      <button key={p.id} type="button" className="tb-bench__player" onClick={() => substitute(p)}
+                              title={selectedPlayer ? `${selectedPlayer.name || selectedPlayer.number} 대신 투입` : '피치에서 선수를 먼저 누르세요'}>
+                        <span className="num tb-bench__num">{p.number ?? '-'}</span>
+                        <span className="tb-bench__name">{p.name}</span>
+                        <span className="muted small">{p.position}</span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+            </>
+          )}
         </aside>
       </div>
     </div>

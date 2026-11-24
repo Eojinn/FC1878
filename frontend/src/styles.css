@@ -374,7 +374,11 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .tb-fixture:hover { border-color: var(--accent); }
 .tb-fixture__teams { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; white-space: nowrap; }
 
-.tb-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr) 260px; gap: 14px; align-items: start; }
+/* 전술판은 피치를 크게 보이려고 화면 폭을 넓게 씀 (최대 1600px) */
+.tb-page { width: min(1600px, calc(100vw - 64px)); margin-left: calc(50% - min(800px, 50vw - 32px)); }
+.tb-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 16px; align-items: start; }
+.tb-side { position: sticky; top: 16px; }
+.tb-tabs--main { margin-bottom: 2px; }
 .tb-panel { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .tb-panel .field select, .tb-panel .field input { width: 100%; }
 .tb-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 10px; background: var(--bg); }
@@ -396,12 +400,12 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .tb-tool:hover:not(:disabled) { background: var(--card-hover); }
 .tb-tool.is-active { background: var(--accent); color: var(--accent-text); font-weight: 700; }
 .tb-tool:disabled { opacity: .4; cursor: default; }
-.tb-pitch-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #1E6B3A; }
+.tb-pitch-wrap { position: relative; width: 100%; max-width: calc((100vh - 120px) * 113 / 76); margin: 0 auto; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #1E6B3A; }
 .tactic-pitch { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
 .tb-teambar { position: absolute; top: 8px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 1; }
 .tb-teambar__team { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px; border-radius: 16px; background: rgba(10, 6, 7, .62); font-size: 13px; }
 .tb-teambar__team--away { margin-left: auto; }
-.tb-notice { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); margin: 0; padding: 8px 14px; border-radius: 10px; background: var(--inverse); color: var(--inverse-text); font-size: 13px; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.45); max-width: 90%; text-align: center; }
+.tb-notice { position: absolute; left: 50%; top: 8px; z-index: 2; transform: translateX(-50%); margin: 0; padding: 8px 14px; border-radius: 10px; background: var(--inverse); color: var(--inverse-text); font-size: 13px; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.45); max-width: 90%; text-align: center; }
 
 .tb-center:fullscreen { background: var(--bg); padding: 16px; justify-content: center; }
 .tb-center:fullscreen .tb-pitch-wrap { max-height: calc(100vh - 90px); aspect-ratio: 113 / 76; margin: 0 auto; width: auto; }
@@ -413,7 +417,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .tb-bench-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .tb-bench-search { height: 36px; background: var(--bg); }
 .tb-bench-search input { width: 100%; }
-.tb-bench { display: flex; flex-direction: column; gap: 10px; max-height: 520px; overflow-y: auto; margin-right: -6px; padding-right: 6px; }
+.tb-bench { display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 380px); min-height: 240px; overflow-y: auto; margin-right: -6px; padding-right: 6px; }
 .tb-bench__group { display: flex; flex-direction: column; gap: 2px; }
 .tb-bench__role { font-size: 12px; font-weight: 700; color: var(--sub); margin: 2px 0; }
 .tb-bench__player { display: grid; grid-template-columns: 26px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; border: 0; background: transparent; color: var(--text); text-align: left; }
@@ -421,6 +425,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .tb-bench__num { grid-row: span 2; text-align: center; font-weight: 700; color: var(--accent-ink); }
 .tb-bench__name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tb-bench__player .small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 1180px) {
+@media (max-width: 1100px) {
   .tb-layout { grid-template-columns: minmax(0, 1fr); }
+  .tb-side { position: static; }
 }
