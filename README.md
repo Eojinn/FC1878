@@ -178,7 +178,8 @@ curl http://localhost:8080/actuator/health
 - DB 비밀번호, JWT 시크릿, API 키, 소셜 로그인 키 등 **민감 정보는 저장소에 커밋하지 않습니다.**
 - 키는 **환경변수** 또는 **`config/application.yaml`**(프로젝트 루트, gitignore 처리)에 넣습니다.
   `src/main/resources/application.yaml`에는 `${FOOTBALL_API_KEY:}` 같은 **빈 자리만** 둡니다. (`:` 뒤에 실제 값을 쓰지 않기)
-- `config-example/application.yaml` 을 `config/application.yaml` 로 복사해서 빈칸을 채우면 됩니다.
+- `config-example/application.yaml` 을 `config/application.yaml` 로 복사한 뒤, **쓰려는 줄만 맨 앞의 `#` 을 지우고** 값을 넣습니다.
+  값이 없는 줄의 `#` 은 지우지 마세요. 이 파일의 값은 비어 있어도 기본 설정을 덮어써서, 예를 들어 `jwt.secret` 이 빈 값이 되면 서버가 켜지지 않습니다.
 - **커밋 전 검사**: 저장소를 받은 뒤 한 번만 아래 명령을 실행하면, 키·토큰·개인 키가 섞인 커밋을 자동으로 막습니다.
 
   ```bash
