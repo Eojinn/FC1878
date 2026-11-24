@@ -177,7 +177,13 @@ curl http://localhost:8080/actuator/health
 
 - DB 비밀번호, JWT 시크릿, API 키, 소셜 로그인 키 등 **민감 정보는 저장소에 커밋하지 않습니다.**
 - 키는 **환경변수** 또는 **`config/application.yaml`**(프로젝트 루트, gitignore 처리)에 넣습니다.
-  `src/main/resources/application.yaml`에는 `${FOOTBALL_API_KEY:}` 같은 자리만 있습니다.
+  `src/main/resources/application.yaml`에는 `${FOOTBALL_API_KEY:}` 같은 **빈 자리만** 둡니다. (`:` 뒤에 실제 값을 쓰지 않기)
+- `config-example/application.yaml` 을 `config/application.yaml` 로 복사해서 빈칸을 채우면 됩니다.
+- **커밋 전 검사**: 저장소를 받은 뒤 한 번만 아래 명령을 실행하면, 키·토큰·개인 키가 섞인 커밋을 자동으로 막습니다.
+
+  ```bash
+  git config core.hooksPath .githooks
+  ```
 - 애플 로그인 키 파일(`.p8`)도 커밋하지 않습니다.
 - `compose.yaml`의 계정 정보는 **로컬 개발 전용** 값입니다.
 
@@ -186,6 +192,8 @@ curl http://localhost:8080/actuator/health
 | `FOOTBALL_API_KEY` | football-data.org 토큰 (없으면 샘플 데이터 사용) |
 | `GOOGLE_CLIENT_ID` · `GOOGLE_CLIENT_SECRET` | 구글 로그인 |
 | `KAKAO_CLIENT_ID` · `KAKAO_CLIENT_SECRET` | 카카오 로그인 |
+| `NAVER_CLIENT_ID` · `NAVER_CLIENT_SECRET` | 해외축구 뉴스 (네이버 API 허브) |
+| `JWT_SECRET` | JWT 서명 키 (운영 서버에서는 꼭 랜덤 값) |
 | 애플 로그인 설정 | `docs/SOCIAL_LOGIN.md` 참고 |
 
 ```gitignore

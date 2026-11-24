@@ -1,0 +1,24 @@
+# 내 컴퓨터 전용 설정 예시
+# 1) 이 파일을 프로젝트 루트의 config/application.yaml 로 복사하세요.  (config/ 폴더는 .gitignore 로 깃에 안 올라감)
+#      Windows:  mkdir config  →  copy config-example\application.yaml config\application.yaml
+# 2) 아래 빈칸에 실제 값을 넣으세요. 스프링이 실행될 때 이 파일을 자동으로 읽어서 기본 설정을 덮어써요.
+#    (IntelliJ 실행 설정의 Working directory 가 프로젝트 루트여야 함 — 기본값)
+
+football:
+  api:
+    key:                     # football-data.org 토큰
+
+jwt:
+  secret:                    # 32자 이상 아무 문자열 (운영 서버는 꼭 바꾸기)
+
+app:
+  news:
+    naver-client-id:         # 네이버 API 허브 Client ID
+    naver-client-secret:     # 네이버 API 허브 Client Secret
+  oauth:
+    google:
+      client-id:
+      client-secret:
+    kakao:
+      client-id:
+      client-secret:

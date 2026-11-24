@@ -1,3 +1,6 @@
 /gradlew text eol=lf
 *.bat text eol=crlf
 *.jar binary
+
+# 커밋 검사 스크립트는 윈도우에서도 줄바꿈을 LF 로 (CRLF 면 실행이 안 됨)
+.githooks/* text eol=lf
