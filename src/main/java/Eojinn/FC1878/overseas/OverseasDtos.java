@@ -12,11 +12,11 @@ public final class OverseasDtos {
     public record OverseasResponse(LocalDate asOf, List<PlayerResponse> players) {
     }
 
-    public record PlayerResponse(Long id, String name, String position, String club, String parentClub,
+    public record PlayerResponse(Long id, String name, String nameEn, String position, String club, String parentClub,
                                  boolean onLoan, String league, String countryCode, String countryName,
                                  String city, double latitude, double longitude) {
         public static PlayerResponse from(OverseasPlayer p) {
-            return new PlayerResponse(p.getId(), p.getName(), p.getPosition().name(), p.getClub(), p.getParentClub(),
+            return new PlayerResponse(p.getId(), p.getName(), p.getNameEn(), p.getPosition().name(), p.getClub(), p.getParentClub(),
                     p.isOnLoan(), p.getLeague(), p.getCountryCode(), p.getCountryName(),
                     p.getCity(), p.getLatitude(), p.getLongitude());
         }

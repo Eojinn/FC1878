@@ -561,3 +561,6 @@ a.player-hero__team:hover { border-color: var(--accent); }
 .career-timeline__stat { text-align: right; font-weight: 700; }
 .career-timeline__stat small { margin-left: 3px; font-size: 11px; font-weight: 400; color: var(--sub); }
 .career__source { margin-top: 4px; }
+
+/* 검색 결과: 한글 이름 옆 영문 이름 */
+.hsearch__en { font-size: 12px; font-weight: 400; color: var(--sub); margin-left: 6px; }

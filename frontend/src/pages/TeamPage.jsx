@@ -181,6 +181,7 @@ export default function TeamPage() {
                                   <span className="squad-player">
                                     <span className={'pos-badge pos-badge--' + p.role}>{p.role}</span>
                                     {p.playerId ? <Link to={`/players/${p.playerId}`}>{p.name}</Link> : <span>{p.name}</span>}
+                                    {p.koreanName && <span className="muted small">{p.koreanName}</span>}
                                   </span>
                                 </td>
                                 <td className="left muted small">{p.nationality ?? '-'}</td>

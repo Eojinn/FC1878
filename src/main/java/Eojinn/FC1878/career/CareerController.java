@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
@@ -31,7 +32,13 @@ public class CareerController {
         Player p = playerRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT, "선수를 찾을 수 없어요."));
         boolean korea = p.getNationality() != null && p.getNationality().toLowerCase(Locale.ROOT).contains("korea");
-        return careerService.lookup(p.getName(), "en", p.getDateOfBirth(), korea);
+        CareerResponse res = careerService.lookup(p.getName(), "en", p.getDateOfBirth(), korea);
+        // 커리어에서 한글 이름을 알게 됐으면 저장 → 다음부터 한글로 검색 가능
+        if (res.found() && res.koreanName() != null && p.getKoreanName() == null) {
+            p.markKoreanName(res.koreanName(), LocalDateTime.now());
+            playerRepository.save(p);
+        }
+        return res;
     }
 
     @GetMapping("/api/career")

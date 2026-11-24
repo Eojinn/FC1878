@@ -38,34 +38,52 @@ public class SearchService {
         if (q.isEmpty()) return new SearchResponse(q, List.of(), List.of());
         if (q.length() > 40) throw new BusinessException(ErrorCode.INVALID_INPUT, "검색어는 40자까지 입력할 수 있어요.");
         int size = Math.max(1, Math.min(limit, 30));
+        NameQuery nq = NameQuery.of(q);
+        if (nq.compact().isEmpty()) return new SearchResponse(q, List.of(), List.of());
 
         List<TeamResult> teams = teamRepository.search(q, PageRequest.of(0, size)).stream()
                 .map(SearchService::team)
                 .toList();
 
-        // 같은 선수가 여러 곳에서 나오면 한 번만 (한글 이름 결과를 먼저)
+        // 같은 선수가 여러 곳에서 나오면 한 번만. 기록·커리어가 다 있는 스쿼드 선수를 먼저
         Map<String, PlayerResult> players = new LinkedHashMap<>();
-        for (OverseasPlayer o : overseasRepository.findTop10ByNameContainingOrderBySortOrder(q)) {
-            players.putIfAbsent(key(o.getName()), new PlayerResult(o.getName(), o.getClub() + " · " + o.getLeague(),
-                    o.getPosition().name(), o.getClub(), null, null, "대한민국", "OVERSEAS", careerLink(o.getName(), "ko", true)));
-        }
-        for (Transfer t : transferRepository
-                .findTop10ByPlayerNameContainingOrPlayerNameEnContainingIgnoreCaseOrderByTransferDateDesc(q, q)) {
-            PlayerResult r = new PlayerResult(t.getPlayerName(),
-                    "최근 이적: " + t.getFromClub() + " → " + t.getToClub(),
-                    t.getPosition().name(), t.getToClub(), null, null, t.getNationality(), "TRANSFER",
-                    t.getPlayerNameEn() != null ? careerLink(t.getPlayerNameEn(), "en", t.isKorean())
-                            : careerLink(t.getPlayerName(), "ko", t.isKorean()));
-            players.putIfAbsent(key(t.getPlayerName()), r);
-            if (t.getPlayerNameEn() != null) players.putIfAbsent(key(t.getPlayerNameEn()), r); // 영문 스쿼드 결과와 겹치지 않게
-        }
-        for (Player p : playerRepository.search(q, PageRequest.of(0, size))) {
+        Set<String> seen = new HashSet<>();
+
+        for (Player p : playerRepository.search(nq.compact(), nq.token(0), nq.token(1), nq.token(2), PageRequest.of(0, size))) {
+            if (!seen.add(NameQuery.key(p.getName()))) continue;
+            if (p.getKoreanName() != null) seen.add(NameQuery.key(p.getKoreanName()));
             Long teamId = p.getTeam() != null ? p.getTeam().getId() : null;
-            players.putIfAbsent(key(p.getName()), new PlayerResult(p.getName(),
+            String ko = p.getKoreanName();
+            players.put("p" + p.getId(), new PlayerResult(ko != null ? ko : p.getName(), ko != null ? p.getName() : null,
                     Optional.ofNullable(p.getPosition()).orElse(""), p.getRole(), p.getTeamName(), teamId,
                     p.getTeamLogoUrl(), p.getNationality(), "SQUAD", "/players/" + p.getId()));
         }
-        List<PlayerResult> playerList = new ArrayList<>(new LinkedHashSet<>(players.values()));
+
+        // 해외파 (한글 이름 + 영문 이름 + 다른 표기)
+        for (OverseasPlayer o : overseasRepository.findAllByOrderBySortOrderAscIdAsc()) {
+            if (!nq.matches(o.getName(), o.getNameEn(), o.getNameAliases())) continue;
+            if (seen.contains(NameQuery.key(o.getName())) || seen.contains(NameQuery.key(o.getNameEn()))) continue;
+            seen.add(NameQuery.key(o.getName()));
+            seen.add(NameQuery.key(o.getNameEn()));
+            players.put("o" + o.getId(), new PlayerResult(o.getName(), o.getNameEn(), o.getClub() + " · " + o.getLeague(),
+                    o.getPosition().name(), o.getClub(), null, null, "대한민국", "OVERSEAS",
+                    o.getNameEn() != null ? careerLink(o.getNameEn(), "en", true) : careerLink(o.getName(), "ko", true)));
+        }
+
+        // 이적시장 (한글 이름 + 영문 이름)
+        for (Transfer t : transferRepository.findAllByOrderByTransferDateDescIdDesc()) {
+            if (!nq.matches(t.getPlayerName(), t.getPlayerNameEn())) continue;
+            if (seen.contains(NameQuery.key(t.getPlayerName())) || seen.contains(NameQuery.key(t.getPlayerNameEn()))) continue;
+            seen.add(NameQuery.key(t.getPlayerName()));
+            seen.add(NameQuery.key(t.getPlayerNameEn()));
+            players.put("t" + t.getId(), new PlayerResult(t.getPlayerName(), t.getPlayerNameEn(),
+                    "최근 이적: " + t.getFromClub() + " → " + t.getToClub(),
+                    t.getPosition().name(), t.getToClub(), null, null, t.getNationality(), "TRANSFER",
+                    t.getPlayerNameEn() != null ? careerLink(t.getPlayerNameEn(), "en", t.isKorean())
+                            : careerLink(t.getPlayerName(), "ko", t.isKorean())));
+        }
+
+        List<PlayerResult> playerList = new ArrayList<>(players.values());
         return new SearchResponse(q, teams, playerList.subList(0, Math.min(size, playerList.size())));
     }
 
@@ -80,9 +98,6 @@ public class SearchService {
                 + (korea ? "&korea=true" : "");
     }
 
-    private static String key(String name) {
-        return name.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
-    }
 
     public record SearchResponse(String query, List<TeamResult> teams, List<PlayerResult> players) {
     }
@@ -91,8 +106,9 @@ public class SearchService {
     public record TeamResult(Long id, String name, String subName, String logoUrl, String link) {
     }
 
-    /** type: SQUAD(스쿼드), OVERSEAS(해외파), TRANSFER(이적시장) */
-    public record PlayerResult(String name, String detail, String role, String teamName, Long teamId,
+    /** name: 화면에 크게 보일 이름(한글이 있으면 한글), nameEn: 함께 보여 줄 영문 이름
+     *  type: SQUAD(스쿼드), OVERSEAS(해외파), TRANSFER(이적시장) */
+    public record PlayerResult(String name, String nameEn, String detail, String role, String teamName, Long teamId,
                                String teamLogoUrl, String nationality, String type, String link) {
     }
 }

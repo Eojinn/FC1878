@@ -29,13 +29,13 @@ export default function PlayerPage() {
               <span className={'player-hero__num num'} aria-label="등번호">{p.number ?? '-'}</span>
               <div className="player-hero__main">
                 <span className={'pos-badge pos-badge--' + p.role}>{p.role}</span>
-                <h1 className="h1">{p.name}</h1>
+                <h1 className="h1">{p.koreanName ?? career.data?.koreanName ?? p.name}</h1>
+                {(p.koreanName || career.data?.koreanName) && <p className="muted">{p.name}</p>}
                 <dl className="team-facts">
                   <div><dt>포지션</dt><dd>{POSITION_LABEL[p.role]}{p.position && p.position !== POSITION_LABEL[p.role] ? ` · ${p.position}` : ''}</dd></div>
                   <div><dt>국적</dt><dd>{p.nationality ?? '-'}</dd></div>
                   <div><dt>생년월일</dt><dd>{dateText(p.dateOfBirth)}{p.age != null ? ` (${p.age}세)` : ''}</dd></div>
                   {career.data?.heightCm && <div><dt>키</dt><dd>{career.data.heightCm}cm</dd></div>}
-                  {career.data?.koreanName && <div><dt>한글 이름</dt><dd>{career.data.koreanName}</dd></div>}
                 </dl>
               </div>
               {teamName && (

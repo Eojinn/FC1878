@@ -24,7 +24,7 @@ export default function SearchPage() {
 
       {q && (
         <StateBox loading={loading} error={error} empty={!teams.length && !players.length}
-                  emptyText="맞는 팀·선수가 없어요. 영문 이름(예: Saka)이나 한글 이름(예: 손흥민)으로도 찾아보세요.">
+                  emptyText="맞는 팀·선수가 없어요. 영문(예: Son Heung-min, Saka)이나 한글(예: 손흥민, 사카)로 바꿔서 찾아보세요.">
           {teams.length > 0 && (
             <section className="card search-section" aria-label="팀">
               <h2 className="h3">팀</h2>
@@ -53,7 +53,7 @@ export default function SearchPage() {
                     <>
                       <span className={'pos-badge pos-badge--' + p.role} title={ROLE_LABEL[p.role]}>{p.role}</span>
                       <span className="search-player__text">
-                        <strong>{p.name}</strong>
+                        <strong>{p.name}{p.nameEn && <span className="hsearch__en">{p.nameEn}</span>}</strong>
                         <span className="muted small">{[p.nationality, p.detail].filter(Boolean).join(' · ')}</span>
                       </span>
                       <span className="search-player__team">

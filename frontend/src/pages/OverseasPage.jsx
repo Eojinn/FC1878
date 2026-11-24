@@ -101,7 +101,8 @@ export default function OverseasPage() {
                   <li key={p.id} className="overseas-player">
                     <span className={'pos-badge pos-badge--' + p.position} title={POSITION_LABEL[p.position]}>{p.position}</span>
                     <div className="overseas-player__body">
-                      <Link to={`/career?name=${encodeURIComponent(p.name)}&lang=ko&korea=true`} className="player-link"><strong>{p.name}</strong></Link>
+                      <Link to={p.nameEn ? `/career?name=${encodeURIComponent(p.nameEn)}&lang=en&korea=true` : `/career?name=${encodeURIComponent(p.name)}&lang=ko&korea=true`}
+                            className="player-link"><strong>{p.name}</strong>{p.nameEn && <span className="hsearch__en">{p.nameEn}</span>}</Link>
                       <span className="muted small">
                         {p.club} · {p.league}
                         {p.onLoan && <> · <span className="loan-tag">{p.parentClub}에서 임대</span></>}

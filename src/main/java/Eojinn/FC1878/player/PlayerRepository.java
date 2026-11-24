@@ -18,13 +18,30 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     List<Player> findByExternalIdIn(java.util.Collection<Integer> externalIds);
 
-    /** 이름에 검색어가 들어간 선수 (앞부분이 맞는 선수 먼저) */
+    /**
+     * 이름 검색 (대소문자·하이픈·띄어쓰기 무시, 단어 순서 무관, 한글 이름 포함)
+     * compact: 공백·하이픈을 뺀 검색어 / t1~t3: 단어별 (없으면 null) / 예) "minjae kim" → "Kim Min-Jae" 도 찾음
+     */
     @Query("""
             select p from Player p left join fetch p.team
-            where lower(p.name) like lower(concat('%', :q, '%'))
-            order by case when lower(p.name) like lower(concat(:q, '%')) then 0 else 1 end, p.name
+            where lower(replace(replace(p.name, '-', ''), ' ', '')) like concat('%', :compact, '%')
+               or (lower(replace(p.name, '-', '')) like concat('%', :t1, '%')
+                   and (:t2 is null or lower(replace(p.name, '-', '')) like concat('%', :t2, '%'))
+                   and (:t3 is null or lower(replace(p.name, '-', '')) like concat('%', :t3, '%')))
+               or replace(p.koreanName, ' ', '') like concat('%', :compact, '%')
+            order by case when lower(p.name) like concat(:t1, '%') or p.koreanName like concat(:compact, '%') then 0 else 1 end,
+                     p.name
             """)
-    List<Player> search(@Param("q") String q, Pageable pageable);
+    List<Player> search(@Param("compact") String compact, @Param("t1") String t1, @Param("t2") String t2,
+                        @Param("t3") String t3, Pageable pageable);
+
+    /** 한글 이름을 아직 안 찾아봤거나, 못 찾은 지 오래된 선수 */
+    @Query("""
+            select p from Player p
+            where p.koreanName is null and (p.koreanNameCheckedAt is null or p.koreanNameCheckedAt < :before)
+            order by p.koreanNameCheckedAt asc nulls first, p.id
+            """)
+    List<Player> findNeedingKoreanName(@Param("before") LocalDateTime before, Pageable pageable);
 
     @Modifying
     @Query("delete from Player p where p.syncedAt < :before")

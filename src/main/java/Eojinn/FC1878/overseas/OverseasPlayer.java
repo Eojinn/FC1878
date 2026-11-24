@@ -19,6 +19,14 @@ public class OverseasPlayer extends BaseTimeEntity {
     @Column(nullable = false, length = 30)
     private String name;
 
+    /** 영문 이름 (예: Son Heung-min) */
+    @Column(length = 60)
+    private String nameEn;
+
+    /** 다른 영문 표기, 쉼표로 구분 (예: Baek Seung-ho) */
+    @Column(length = 200)
+    private String nameAliases;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 2)
     private Position position;

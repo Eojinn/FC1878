@@ -102,6 +102,7 @@ export default function HeaderSearch() {
                     <span className={'pos-badge pos-badge--' + it.data.role}>{it.data.role}</span>
                     <span className="hsearch__text">
                       <strong>{it.data.name}
+                        {it.data.nameEn && <span className="hsearch__en">{it.data.nameEn}</span>}
                         {TYPE_LABEL[it.data.type] && <span className="hsearch__tag">{TYPE_LABEL[it.data.type]}</span>}
                       </strong>
                       <span className="muted small">

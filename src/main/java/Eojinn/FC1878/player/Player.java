@@ -40,6 +40,12 @@ public class Player extends BaseTimeEntity {
 
     private LocalDate dateOfBirth;
 
+    /** 한글 이름 (Wikidata 에서 찾아서 채움, 못 찾으면 null) */
+    @Column(length = 60)
+    private String koreanName;
+
+    private LocalDateTime koreanNameCheckedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -53,6 +59,12 @@ public class Player extends BaseTimeEntity {
     /** 마지막으로 스쿼드에서 확인된 시각 (오래 안 보이면 삭제) */
     @Column(nullable = false)
     private LocalDateTime syncedAt;
+
+    /** 한글 이름 조회 결과 기록 (못 찾았으면 koreanName 은 그대로 두고 시각만) */
+    public void markKoreanName(String koreanName, LocalDateTime checkedAt) {
+        if (koreanName != null && !koreanName.isBlank()) this.koreanName = koreanName.trim();
+        this.koreanNameCheckedAt = checkedAt;
+    }
 
     /** "2001-09-05" → 날짜 (형식이 다르면 null) */
     public static LocalDate parseDate(String s) {

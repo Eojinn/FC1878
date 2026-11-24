@@ -29,13 +29,13 @@ public final class ProfileDtos {
     }
 
     /** playerId 가 null 이면 선수 페이지가 없는 선수 (DB 동기화 전, API 에서 바로 받은 스쿼드) */
-    public record SquadMember(Long playerId, String name, Integer number, String role, String position,
+    public record SquadMember(Long playerId, String name, String koreanName, Integer number, String role, String position,
                               String nationality, Integer age, Integer played, Integer goals, Integer assists) {
     }
 
     /* ===== 선수 페이지 ===== */
 
-    public record PlayerProfileResponse(Long id, String name, String role, String position, Integer number,
+    public record PlayerProfileResponse(Long id, String name, String koreanName, String role, String position, Integer number,
                                         String nationality, LocalDate dateOfBirth, Integer age, TeamResponse team,
                                         String teamName, String teamLogoUrl, List<PlayerSeasonStat> stats,
                                         List<RecentTransfer> transfers) {

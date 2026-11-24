@@ -92,7 +92,7 @@ public class ProfileService {
         if (players.isEmpty()) { // 선수 동기화 전 → API 스쿼드 그대로 (기록 없음)
             if (detail == null || detail.squad() == null) return List.of();
             return detail.squad().stream()
-                    .map(sp -> new SquadMember(null, sp.name(), sp.shirtNumber(), PlayerRole.of(sp.position()),
+                    .map(sp -> new SquadMember(null, sp.name(), null, sp.shirtNumber(), PlayerRole.of(sp.position()),
                             sp.position(), sp.nationality(), age(Player.parseDate(sp.dateOfBirth())), null, null, null))
                     .sorted(order).toList();
         }
@@ -103,7 +103,7 @@ public class ProfileService {
                 .collect(Collectors.groupingBy(s -> s.getPlayer().getId()));
         return players.stream().map(p -> {
             List<PlayerStat> list = stats.getOrDefault(p.getId(), List.of());
-            return new SquadMember(p.getId(), p.getName(), p.getShirtNumber(), p.getRole(), p.getPosition(),
+            return new SquadMember(p.getId(), p.getName(), p.getKoreanName(), p.getShirtNumber(), p.getRole(), p.getPosition(),
                     p.getNationality(), age(p.getDateOfBirth()),
                     sum(list, PlayerStat::getPlayedMatches), list.isEmpty() ? null : list.stream().mapToInt(PlayerStat::getGoals).sum(),
                     sum(list, PlayerStat::getAssists));
@@ -122,7 +122,7 @@ public class ProfileService {
         List<RecentTransfer> transfers = transferRepository.findTop5ByPlayerNameEnIgnoreCaseOrderByTransferDateDesc(p.getName())
                 .stream().map(ProfileService::transfer).toList();
         Team team = p.getTeam();
-        return new PlayerProfileResponse(p.getId(), p.getName(), p.getRole(), p.getPosition(), p.getShirtNumber(),
+        return new PlayerProfileResponse(p.getId(), p.getName(), p.getKoreanName(), p.getRole(), p.getPosition(), p.getShirtNumber(),
                 p.getNationality(), p.getDateOfBirth(), age(p.getDateOfBirth()),
                 team == null ? null : TeamResponse.from(team), p.getTeamName(), p.getTeamLogoUrl(), stats, transfers);
     }
