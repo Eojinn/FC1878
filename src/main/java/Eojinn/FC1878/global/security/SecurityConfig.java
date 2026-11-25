@@ -49,7 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**",
                                 "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/leagues/**", "/api/teams/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**", "/api/overseas/**", "/api/transfers/**", "/api/news/**", "/api/search/**", "/api/search", "/api/players/**", "/api/career").permitAll()
+                                "/api/leagues/**", "/api/teams/**", "/api/fixtures/**", "/api/rankings/**", "/api/posts/**", "/api/overseas/**", "/api/transfers/**", "/api/news/**", "/api/search/**", "/api/search", "/api/players/**", "/api/career", "/api/chat/status").permitAll()
+                        // AI 챗봇: 손님도 질문 가능 (하루 질문 수는 ChatRateLimiter 가 제한)
+                        .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
                         .anyRequest().authenticated())
                 // 소셜 로그인: /oauth2/authorization/{google|kakao|apple} 로 시작 → /login/oauth2/code/{...} 로 돌아옴
                 .oauth2Login(o -> o

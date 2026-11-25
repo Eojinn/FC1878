@@ -38,6 +38,14 @@ football:
     standings-sync-ms: 10800000             # 순위 동기화 주기 (3시간, 대회 수만큼 요청)
 
 app:
+  # AI 축구 챗봇: Google Gemini API (AI Studio 에서 무료 키 발급). 키가 비어 있으면 챗봇 창에 "연결 전"만 표시
+  ai:
+    base-url: https://generativelanguage.googleapis.com/v1beta
+    api-key: ${GEMINI_API_KEY:}       # 환경변수나 config/application.yaml 로만 넣기
+    model: ${GEMINI_MODEL:gemini-flash-latest}   # AI Studio 의 모델 이름. 404 가 나면 다른 Flash 모델로 바꾸기
+    guest-daily-limit: 10              # 로그인 안 한 사람(IP) 하루 질문 수
+    member-daily-limit: 50             # 회원 1명 하루 질문 수
+    max-tool-rounds: 5                 # 한 질문에 DB 조회 최대 횟수
   news:
     # 해외축구 뉴스: 네이버 API 허브 뉴스 검색 (키가 비어 있으면 샘플 기사 표시)
     naver-base-url: https://naverapihub.apigw.ntruss.com
