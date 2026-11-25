@@ -1,0 +1,46 @@
+#!/bin/sh
+# FC1878 커밋 전 검사: API 키·비밀번호 같은 비밀 값이 커밋에 섞이면 커밋을 막음
+# 설치(한 번만): git config core.hooksPath .githooks
+
+fail=0
+mask() { sed -E 's/([A-Za-z0-9]{4})[A-Za-z0-9_+\/=-]{12,}/\1****(가림)/g'; }
+
+# 1) 올리면 안 되는 파일
+for f in $(git diff --cached --name-only --diff-filter=ACMR); do
+  case "$f" in
+    .env.example|config-example/*) ;;
+    config/*|*.p8|*.pem|*.key|.env|.env.*|*application-local.yml|*application-local.yaml)
+      echo "✖ 올리면 안 되는 파일이 포함됐어요: $f"
+      fail=1 ;;
+  esac
+done
+
+# 2) 이번에 추가되는 줄만 검사
+added=$(git diff --cached -U0 --diff-filter=ACMR -- . ':(exclude)*package-lock.json' ':(exclude).githooks/*' \
+  | grep '^+' | grep -v '^+++')
+
+check() {  # check "설명" "정규식"
+  hits=$(printf '%s\n' "$added" | grep -E -e "$2" | grep -vE 'change-me|local-dev|example|your-|<[^>]+>')
+  if [ -n "$hits" ]; then
+    echo "✖ $1"
+    printf '%s\n' "$hits" | mask | sed 's/^/    /'
+    fail=1
+  fi
+}
+
+# ${FOOTBALL_API_KEY:실제값} 처럼 환경변수 기본값에 값이 들어간 경우
+check '환경변수 기본값에 키·비밀 값이 들어 있어요. ${이름:} 처럼 비워 두세요.' \
+  '\$\{[A-Z0-9_]*(KEY|SECRET|TOKEN|PASSWORD)[A-Z0-9_]*:[^}]+\}'
+# key: abcd1234... 처럼 설정 값에 바로 적은 경우
+check '설정에 키·토큰 값이 그대로 적혀 있어요.' \
+  '([Aa][Pp][Ii][-_]?[Kk][Ee][Yy]|[Ss][Ee][Cc][Rr][Ee][Tt]|[Tt][Oo][Kk][Ee][Nn]|[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|key)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_+/=-]{20,}'
+# 개인 키 파일 내용
+check '개인 키(PRIVATE KEY) 내용이 들어 있어요.' '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+
+if [ "$fail" -ne 0 ]; then
+  echo ""
+  echo "커밋을 멈췄어요. 키는 환경변수나 config/application.yaml(깃에 안 올라감)에 넣어 주세요."
+  echo "정말 비밀 값이 아니라면: git commit --no-verify"
+  exit 1
+fi
+exit 0
