@@ -1,0 +1,20 @@
+# gitleaks 검사 규칙: 기본 규칙 + 이 프로젝트에서 쓰는 키 형식
+[extend]
+useDefault = true
+
+[[rules]]
+id = "football-data-token"
+description = "football-data.org API 토큰 (16진수 32자리)"
+regex = '''(?i)(football|api[-_]?key|key)[^\n]{0,40}?\b([0-9a-f]{32})\b'''
+secretGroup = 2
+
+[[rules]]
+id = "spring-env-default-secret"
+description = "${..._KEY:실제값} 처럼 환경변수 기본값에 비밀 값을 적은 경우"
+regex = '''\$\{[A-Z0-9_]*(KEY|SECRET|TOKEN|PASSWORD)[A-Z0-9_]*:([^}\s]{12,})\}'''
+secretGroup = 2
+
+[allowlist]
+description = "예시 값과 잠금 파일은 검사 안 함"
+paths = ['''package-lock\.json''', '''config-example/.*''']
+regexes = ['''local-dev-secret-key-change-me''']

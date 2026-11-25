@@ -192,6 +192,8 @@ curl http://localhost:8080/actuator/health
   ```bash
   git config core.hooksPath .githooks
   ```
+- **깃허브 검사**: push 할 때마다 GitHub Actions(`.github/workflows/secret-scan.yml`, gitleaks)가 커밋에 키가 섞였는지 한 번 더 검사합니다. 내 컴퓨터의 커밋 전 검사를 건너뛰었어도 깃허브 Actions 탭에 빨간 ✖ 로 알려 줍니다.
+- 키가 이미 올라갔다면: ① 키를 먼저 새로 발급(기존 키 폐기) ② `git filter-repo` 로 기록에서 지우고 강제 push. 기록에서 지워도 이미 복사된 곳이 있을 수 있어서 ①이 꼭 필요합니다.
 - 애플 로그인 키 파일(`.p8`)도 커밋하지 않습니다.
 - `compose.yaml`의 계정 정보는 **로컬 개발 전용** 값입니다.
 
