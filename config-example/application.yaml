@@ -18,6 +18,7 @@
 # app:
 #   AI:
 #     api-key: 여기에_AI_Studio_키                  # AI 챗봇용 (영문·숫자 키로 바꾸기)
+#     model: 모델 이름
 #   news:
 #     naver-client-id: 네이버_API_허브_Client_ID
 #     naver-client-secret: 네이버_API_허브_Client_Secret
