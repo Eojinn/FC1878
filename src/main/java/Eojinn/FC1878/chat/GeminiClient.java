@@ -11,7 +11,10 @@ import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Google Gemini generateContent 호출 (POST /models/{model}:generateContent, 헤더 x-goog-api-key).
@@ -41,12 +44,53 @@ public class GeminiClient {
                 .build();
     }
 
+    /** 응답 + 실제로 답한 모델 (한 질문 안에서는 같은 모델을 계속 써야 해서) */
+    public record Reply(Map<String, Object> body, String model) {
+    }
+
+    /**
+     * fixedModel 이 있으면 그 모델만, 없으면 기본 모델 → 예비 모델 순서로 시도.
+     * 붐빔(503·429·500)은 같은 모델로 한 번 더 시도한 뒤 다음 모델로, 없는 모델(404)은 바로 다음 모델로.
+     */
+    public Reply generate(Map<String, Object> body, String fixedModel) {
+        Set<String> models = new LinkedHashSet<>();
+        if (fixedModel != null) {
+            models.add(fixedModel);
+        } else {
+            models.add(props.model());
+            props.fallbackModels().stream().filter(m -> m != null && !m.isBlank()).map(String::trim).forEach(models::add);
+        }
+        GeminiException last = null;
+        for (String model : models) {
+            for (int attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    return new Reply(call(model, body), model);
+                } catch (GeminiException e) {
+                    last = e;
+                    if (e.status() == 404) break;                 // 없는 모델 → 다음 모델
+                    if (!e.busy()) throw e;                       // 키 오류 등은 다른 모델로 바꿔도 같음
+                    if (attempt == 1) sleep(1500);                // 잠깐 쉬고 같은 모델로 한 번 더
+                }
+            }
+            if (fixedModel == null) log.info("Gemini 모델 '{}' 대신 다음 모델로 시도해요.", model);
+        }
+        throw last != null ? last : new GeminiException(0);
+    }
+
+    private static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    public Map<String, Object> generate(Map<String, Object> body) {
+    private Map<String, Object> call(String model, Map<String, Object> body) {
         ResponseEntity<String> res;
         try {
             res = restClient.post()
-                    .uri("/models/{model}:generateContent", props.model())
+                    .uri("/models/{model}:generateContent", model)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
@@ -56,9 +100,9 @@ public class GeminiClient {
             String detail = e.getResponseBodyAsString();
             if (status == 404) {
                 log.warn("Gemini 모델 '{}' 을(를) 찾지 못했어요. app.ai.model 을 AI Studio 에 있는 모델 이름으로 바꿔 주세요. {}",
-                        props.model(), detail);
+                        model, detail);
             } else {
-                log.warn("Gemini 오류: HTTP {} {}", status, detail);
+                log.warn("Gemini 오류 ({}): HTTP {} {}", model, status, detail.replaceAll("\\s+", " "));
             }
             throw new GeminiException(status);
         } catch (RestClientException e) {
@@ -82,7 +126,7 @@ public class GeminiClient {
         }
     }
 
-    /** status 0 = 연결 실패·응답 이상, 429 = 사용량 초과 */
+    /** status 0 = 연결 실패·응답 이상, 429 = 사용량 초과, 503 = 모델이 붐빔 */
     public static class GeminiException extends RuntimeException {
         private final int status;
 
@@ -93,6 +137,11 @@ public class GeminiClient {
 
         public int status() {
             return status;
+        }
+
+        /** 잠깐 기다리거나 다른 모델로 바꾸면 될 수 있는 오류 */
+        public boolean busy() {
+            return status == 429 || status == 500 || status == 503;
         }
     }
 }

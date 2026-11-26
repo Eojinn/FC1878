@@ -48,10 +48,10 @@ public class ChatService {
             return new ChatResponse("OK", answer, links.stream().limit(MAX_LINKS).toList(), limiter.remaining(memberId, ip));
         } catch (GeminiClient.GeminiException e) {
             limiter.refund(memberId, ip);
-            String msg = e.status() == 429
+            String msg = e.busy()
                     ? "지금 AI 사용량이 많아서 답을 못 했어요. 1분쯤 뒤에 다시 물어봐 주세요."
                     : "AI 답변을 받지 못했어요. 잠시 후 다시 시도해 주세요.";
-            return new ChatResponse(e.status() == 429 ? "BUSY" : "ERROR", msg, List.of(), limiter.remaining(memberId, ip));
+            return new ChatResponse(e.busy() ? "BUSY" : "ERROR", msg, List.of(), limiter.remaining(memberId, ip));
         }
     }
 
@@ -70,8 +70,11 @@ public class ChatService {
         body.put("generationConfig", Map.of("temperature", 0.3, "maxOutputTokens", 2048));
         body.put("contents", contents);
 
+        String model = null;
         for (int round = 0; round <= props.maxToolRounds(); round++) {
-            Map<String, Object> res = gemini.generate(body);
+            GeminiClient.Reply reply = gemini.generate(body, model);
+            model = reply.model();   // 한 질문 안에서는 처음 답한 모델을 계속 씀 (모델마다 생각 서명이 달라서)
+            Map<String, Object> res = reply.body();
             Map<String, Object> content = firstContent(res);
             if (content == null) return blockedMessage(res);
 

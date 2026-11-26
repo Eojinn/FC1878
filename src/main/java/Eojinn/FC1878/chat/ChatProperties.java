@@ -10,10 +10,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @param guestDailyLimit  로그인 안 한 사용자(IP 기준) 하루 질문 수
  * @param memberDailyLimit 회원 1명 하루 질문 수
  * @param maxToolRounds    한 질문에서 AI 가 DB 를 조회할 수 있는 최대 횟수
+ * @param fallbackModels   기본 모델이 붐비거나(503·429) 없을 때(404) 차례로 시도할 모델들
  */
 @ConfigurationProperties("app.ai")
 public record ChatProperties(String baseUrl, String apiKey, String model,
-                             Integer guestDailyLimit, Integer memberDailyLimit, Integer maxToolRounds) {
+                             Integer guestDailyLimit, Integer memberDailyLimit, Integer maxToolRounds,
+                             java.util.List<String> fallbackModels) {
 
     public ChatProperties {
         if (baseUrl == null || baseUrl.isBlank()) baseUrl = "https://generativelanguage.googleapis.com/v1beta";
@@ -21,6 +23,7 @@ public record ChatProperties(String baseUrl, String apiKey, String model,
         if (guestDailyLimit == null || guestDailyLimit < 0) guestDailyLimit = 10;
         if (memberDailyLimit == null || memberDailyLimit < 0) memberDailyLimit = 50;
         if (maxToolRounds == null || maxToolRounds < 1) maxToolRounds = 5;
+        if (fallbackModels == null) fallbackModels = java.util.List.of("gemini-3.5-flash-lite", "gemini-3.6-flash");
         if (apiKey != null) apiKey = apiKey.trim();
         if (apiKey != null && !apiKey.isEmpty() && !apiKey.matches("[\\x21-\\x7E]+")) {
             throw new IllegalStateException("app.ai.api-key 값이 올바르지 않아요. "
