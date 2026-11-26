@@ -22,9 +22,9 @@ public record ChatProperties(String baseUrl, String apiKey, String model,
         if (memberDailyLimit == null || memberDailyLimit < 0) memberDailyLimit = 50;
         if (maxToolRounds == null || maxToolRounds < 1) maxToolRounds = 5;
         if (apiKey != null) apiKey = apiKey.trim();
-        if (apiKey != null && !apiKey.isEmpty() && !apiKey.matches("[A-Za-z0-9_\\-]+")) {
+        if (apiKey != null && !apiKey.isEmpty() && !apiKey.matches("[\\x21-\\x7E]+")) {
             throw new IllegalStateException("app.ai.api-key 값이 올바르지 않아요. "
-                    + "Google AI Studio 에서 받은 API 키(영문·숫자·-·_)를 환경변수 GEMINI_API_KEY 나 "
+                    + "한글·띄어쓰기 없이 Google AI Studio 에서 받은 API 키만 환경변수 GEMINI_API_KEY 나 "
                     + "config/application.yaml 에 넣었는지 확인해 주세요. 없으면 비워 두면 돼요.");
         }
     }
