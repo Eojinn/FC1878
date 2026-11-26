@@ -43,3 +43,6 @@ application-local.yaml
 /config/
 *.p8
 
+### Frontend (frontend/.gitignore 와 같은 내용을 루트에도: 실수로 올라가지 않게) ###
+node_modules/
+frontend/dist/
