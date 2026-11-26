@@ -104,7 +104,7 @@ export default function TeamPage() {
                 {data.standings.map((s) => (
                   <section key={s.league.id} className="card team-standing" aria-label={`${s.league.name} 순위`}>
                     <div className="team-standing__head">
-                      <Emblem src={s.league.logoUrl} name={s.league.name} size={22} />
+                      <Emblem src={s.league.logoUrl} name={s.league.name} size={22} light />
                       <strong>{s.league.name}</strong>
                       <span className="muted small">{s.season}-{String(s.season + 1).slice(2)} 시즌</span>
                       <Link to="/standings" className="link-btn">순위표</Link>

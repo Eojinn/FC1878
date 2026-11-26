@@ -21,7 +21,7 @@ export default function FixtureGroups({ groups }) {
   return groups.map((g) => (
     <div className="card fixture-group" key={g.league.id}>
       <div className="fixture-group__head">
-        <Emblem src={g.league.logoUrl} name={g.league.name} size={22} />
+        <Emblem src={g.league.logoUrl} name={g.league.name} size={22} light />
         <strong>{g.league.name}</strong>
         <span className="muted">{roundLabel(g.fixtures[0]?.round)}</span>
       </div>

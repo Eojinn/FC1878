@@ -16,7 +16,7 @@ function PopularLeagues({ leagues }) {
       <div className="league-tiles">
         {leagues.slice(0, 6).map((l) => (
           <Link key={l.id} to={`/standings?league=${l.id}`} className="league-tile">
-            <Emblem src={l.logoUrl} name={l.name} size={44} />
+            <Emblem src={l.logoUrl} name={l.name} size={44} light />
             <span>{l.name}</span>
           </Link>
         ))}

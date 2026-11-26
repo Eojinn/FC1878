@@ -21,7 +21,7 @@ export default function FixtureDetailPage() {
           <>
             <section className="card scoreboard">
               <p className="muted center">
-                <Emblem src={f.league.logoUrl} name={f.league.name} size={20} /> {f.league.name} · {roundLabel(f.round)} · {kickoffLabel(f.kickoffAt)}
+                <Emblem src={f.league.logoUrl} name={f.league.name} size={20} light /> {f.league.name} · {roundLabel(f.round)} · {kickoffLabel(f.kickoffAt)}
               </p>
               <div className="scoreboard__main">
                 <Link to={`/teams/${f.home.id}`} className="pick-card__team team-link" title={`${f.home.name} 팀 정보`}><Emblem src={f.home.logoUrl} name={f.home.name} size={88} /><strong>{f.home.name}</strong><span className="muted small">팀 정보 →</span></Link>

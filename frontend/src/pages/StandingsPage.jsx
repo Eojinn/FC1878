@@ -20,7 +20,7 @@ export default function StandingsPage() {
         {leagues.map((l) => (
           <button key={l.id} type="button" className={'chip chip--emblem' + (l.id === leagueId ? ' is-active' : '')}
                   onClick={() => setParams({ league: l.id })}>
-            <Emblem src={l.logoUrl} name={l.name} size={20} />{l.name}
+            <Emblem src={l.logoUrl} name={l.name} size={20} light />{l.name}
           </button>
         ))}
       </div>

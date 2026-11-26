@@ -67,7 +67,7 @@ export default function PlayerPage() {
                     <tbody>
                       {p.stats.map((s) => (
                         <tr key={`${s.league.id}-${s.season}`}>
-                          <td className="left"><span className="team-cell"><Emblem src={s.league.logoUrl} name={s.league.name} size={20} />{s.league.name}</span></td>
+                          <td className="left"><span className="team-cell"><Emblem src={s.league.logoUrl} name={s.league.name} size={20} light />{s.league.name}</span></td>
                           <td className="num muted">{s.season}-{String(s.season + 1).slice(2)}</td>
                           <td className="num">{s.played ?? '-'}</td>
                           <td className="num"><strong>{s.goals}</strong></td>
