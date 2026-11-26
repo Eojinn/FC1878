@@ -62,7 +62,7 @@ export default function TeamPage() {
   const { data, loading, error } = useAsync(() => api.teamProfile(id), [id]);
   const [sort, setSort] = useState('position');
 
-  const squad = data?.squad ?? [];
+  const squad = useMemo(() => data?.squad ?? [], [data]);
   const hasStats = squad.some((p) => p.goals != null || p.played != null);
   const leaders = useMemo(() => {
     const pick = (key) => [...squad].filter((p) => (p[key] ?? 0) > 0).sort((a, b) => b[key] - a[key]).slice(0, 3);

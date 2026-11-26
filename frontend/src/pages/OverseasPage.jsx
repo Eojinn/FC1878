@@ -29,7 +29,7 @@ export default function OverseasPage() {
   const [view, setView] = useState('world');
   const [selected, setSelected] = useState(null);
 
-  const players = data?.players ?? [];
+  const players = useMemo(() => data?.players ?? [], [data]);
   const countries = useMemo(() => groupByCountry(players), [players]);
   const filtered = useMemo(() => {
     if (!selected) return players;

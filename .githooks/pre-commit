@@ -12,6 +12,9 @@ for f in $(git diff --cached --name-only --diff-filter=ACMR); do
     config/*|*.p8|*.pem|*.key|.env|.env.*|*application-local.yml|*application-local.yaml)
       echo "✖ 올리면 안 되는 파일이 포함됐어요: $f"
       fail=1 ;;
+    */node_modules/*|node_modules/*|build/*|.gradle/*|.idea/*|frontend/dist/*)
+      echo "✖ 빌드 결과물·라이브러리·IDE 파일은 올리지 않아요: $f (.gitignore 확인)"
+      fail=1 ;;
   esac
 done
 
