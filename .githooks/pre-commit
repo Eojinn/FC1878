@@ -42,6 +42,8 @@ check 'football-data.org 토큰처럼 보이는 32자리 값이 들어 있어요
   '(^|[^A-Za-z0-9])[0-9a-f]{32}([^A-Za-z0-9]|$)'
 # Google API 키 (Gemini 등)
 check 'Google API 키(AIza…)가 들어 있어요.' 'AIza[0-9A-Za-z_-]{35}'
+# 새 형식 Google 인증 키 (AQ.Ab…, AI Studio 에서 2026년부터 발급)
+check 'Google 인증 키(AQ.…)가 들어 있어요.' 'AQ\.[0-9A-Za-z_-]{20,}'
 # 개인 키 파일 내용
 check '개인 키(PRIVATE KEY) 내용이 들어 있어요.' '-----BEGIN [A-Z ]*PRIVATE KEY-----'
 

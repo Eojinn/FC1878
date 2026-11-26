@@ -14,6 +14,11 @@ description = "${..._KEY:실제값} 처럼 환경변수 기본값에 비밀 값�
 regex = '''\$\{[A-Z0-9_]*(KEY|SECRET|TOKEN|PASSWORD)[A-Z0-9_]*:([^}\s]{12,})\}'''
 secretGroup = 2
 
+[[rules]]
+id = "google-auth-key"
+description = "Google 인증 키 (AQ. 로 시작, Gemini API 새 형식)"
+regex = '''\bAQ\.[0-9A-Za-z_-]{20,}'''
+
 [allowlist]
 description = "예시 값과 잠금 파일은 검사 안 함"
 paths = ['''package-lock\.json''', '''config-example/.*''']
