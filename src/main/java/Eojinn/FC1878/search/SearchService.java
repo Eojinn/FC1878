@@ -88,7 +88,9 @@ public class SearchService {
     }
 
     private static TeamResult team(Team t) {
-        String sub = t.getKoreanName() != null && !t.getKoreanName().isBlank() ? t.getName() : null;
+        // 한글 표시 이름이 있으면 영문을, 없으면 검색용 한글 이름을 함께 보여줌 (예: Man United · 맨체스터 유나이티드)
+        String sub = t.getKoreanName() != null && !t.getKoreanName().isBlank() ? t.getName()
+                : Eojinn.FC1878.football.service.TeamKoreanNames.primaryKorean(t.getSearchNames());
         return new TeamResult(t.getId(), t.getDisplayName(), sub, t.getLogoUrl(), "/teams/" + t.getId());
     }
 

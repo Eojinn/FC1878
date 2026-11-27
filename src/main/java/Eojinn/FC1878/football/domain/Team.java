@@ -27,6 +27,10 @@ public class Team extends BaseTimeEntity {
 
     private String logoUrl;
 
+    /** 검색용 한글 이름·별명 ("맨체스터 유나이티드 | 맨유 | …"). 화면 표시에는 안 씀 */
+    @Column(length = 500)
+    private String searchNames;
+
     public static Team of(Integer externalId, String name, String logoUrl) {
         Team t = new Team();
         t.externalId = externalId;
@@ -36,6 +40,10 @@ public class Team extends BaseTimeEntity {
 
     public void changeKoreanName(String koreanName) {
         this.koreanName = koreanName;
+    }
+
+    public void changeSearchNames(String searchNames) {
+        this.searchNames = searchNames;
     }
 
     public String getDisplayName() {

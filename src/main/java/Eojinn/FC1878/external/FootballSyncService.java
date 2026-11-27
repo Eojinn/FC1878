@@ -172,6 +172,10 @@ public class FootballSyncService {
         Team team = teamRepository.findByExternalId(t.id())
                 .orElseGet(() -> teamRepository.save(Team.of(t.id(), t.displayName(), t.crest())));
         team.update(t.displayName(), t.crest());
+        // 한글로도 찾을 수 있게 (짧은 이름이 사전에 없으면 정식 이름으로)
+        String ko = Eojinn.FC1878.football.service.TeamKoreanNames.namesFor(t.displayName());
+        if (ko == null) ko = Eojinn.FC1878.football.service.TeamKoreanNames.namesFor(t.name());
+        if (ko != null) team.changeSearchNames(ko);
         return team;
     }
 }
