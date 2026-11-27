@@ -356,12 +356,12 @@ export default function TacticBoardPage() {
             {notice && <p className="tb-notice" role="status">{notice}</p>}
           </div>
           <p className="muted small">
-            이동 도구로 선수·공을 끌어 옮기고, 선수를 누르면 오른쪽 ‘선수 교체’에서 벤치 선수와 바꿀 수 있어요.
+            이동 도구로 선수·공을 끌어 옮기고, 선수를 누르면 왼쪽 ‘선수 교체’에서 벤치 선수와 바꿀 수 있어요.
             판은 이 브라우저에 자동으로 저장돼요.
           </p>
         </div>
 
-        {/* 오른쪽: 팀 설정 / 선수 교체 탭 */}
+        {/* 왼쪽(CSS order 로 앞에 배치): 팀 설정 / 선수 교체 탭 */}
         <aside className="card tb-panel tb-side" aria-label="전술판 설정">
           <div className="tb-tabs tb-tabs--main" role="tablist">
             <button type="button" role="tab" aria-selected={sideTab === 'team'}

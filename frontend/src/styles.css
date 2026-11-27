@@ -380,8 +380,9 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 
 /* 전술판은 피치를 크게 보이려고 화면 폭을 넓게 씀 (최대 1600px) */
 .tb-page { width: min(1600px, calc(100vw - 64px)); margin-left: calc(50% - min(800px, 50vw - 32px)); }
-.tb-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 16px; align-items: start; }
-.tb-side { position: sticky; top: 16px; }
+/* 팀 설정·선수 교체 패널은 왼쪽, 피치는 오른쪽 */
+.tb-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: start; }
+.tb-side { position: sticky; top: 16px; order: -1; }
 .tb-tabs--main { margin-bottom: 2px; }
 .tb-panel { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .tb-panel .field select, .tb-panel .field input { width: 100%; }
@@ -431,7 +432,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .tb-bench__player .small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 1100px) {
   .tb-layout { grid-template-columns: minmax(0, 1fr); }
-  .tb-side { position: static; }
+  .tb-side { position: static; order: 0; }
 }
 
 /* ===== 뉴스 ===== */
