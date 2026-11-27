@@ -46,6 +46,9 @@ public class Player extends BaseTimeEntity {
 
     private LocalDateTime koreanNameCheckedAt;
 
+    /** 등번호를 Wikidata 에서 찾아본 시각 (football-data 무료 데이터엔 등번호가 거의 없음) */
+    private LocalDateTime shirtNumberCheckedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -64,6 +67,12 @@ public class Player extends BaseTimeEntity {
     public void markKoreanName(String koreanName, LocalDateTime checkedAt) {
         if (koreanName != null && !koreanName.isBlank()) this.koreanName = koreanName.trim();
         this.koreanNameCheckedAt = checkedAt;
+    }
+
+    /** 등번호 조회 결과 기록 (못 찾았으면 번호는 그대로 두고 시각만) */
+    public void markShirtNumber(Integer number, LocalDateTime checkedAt) {
+        if (number != null && number > 0 && number < 100) this.shirtNumber = number;
+        this.shirtNumberCheckedAt = checkedAt;
     }
 
     /** "2001-09-05" → 날짜 (형식이 다르면 null) */

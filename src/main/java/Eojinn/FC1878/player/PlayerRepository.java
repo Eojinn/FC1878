@@ -43,6 +43,14 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
             """)
     List<Player> findNeedingKoreanName(@Param("before") LocalDateTime before, Pageable pageable);
 
+    /** 등번호가 없고, 아직 안 찾아봤거나 찾아본 지 오래된 선수 */
+    @Query("""
+            select p from Player p
+            where p.shirtNumber is null and (p.shirtNumberCheckedAt is null or p.shirtNumberCheckedAt < :before)
+            order by p.shirtNumberCheckedAt asc nulls first, p.id
+            """)
+    List<Player> findNeedingShirtNumber(@Param("before") LocalDateTime before, Pageable pageable);
+
     @Modifying
     @Query("delete from Player p where p.syncedAt < :before")
     int deleteNotSyncedSince(@Param("before") LocalDateTime before);
