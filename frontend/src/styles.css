@@ -613,3 +613,20 @@ a.player-hero__team:hover { border-color: var(--accent); }
   .chatbot { right: 0; bottom: 0; width: 100%; height: 100dvh; border-radius: 0; }
   .chatbot-fab { right: 16px; bottom: 16px; height: 46px; }
 }
+
+/* ── 팀 고르기 (검색되는 선택 상자, 전술판) ── */
+.team-picker { position: relative; }
+.team-picker__current { width: 100%; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 14px; text-align: left; cursor: pointer; }
+.team-picker__current:hover { border-color: var(--sub); }
+.team-picker__current > span:not(.team-picker__caret) { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-picker__caret { color: var(--sub); font-size: 12px; }
+.team-picker__pop { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 40; padding: 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); box-shadow: 0 14px 40px rgba(0, 0, 0, .5); }
+.field .team-picker__input, .team-picker__input { width: 100%; height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; }
+.team-picker__input:focus { outline: none; border-color: var(--accent-ink); }
+.team-picker__list { list-style: none; margin: 6px 0 0; padding: 0; max-height: 280px; overflow-y: auto; }
+.team-picker__item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.team-picker__item.is-active { background: var(--card-hover); }
+.team-picker__item.is-selected { color: var(--accent-ink); font-weight: 700; }
+.team-picker__none { color: var(--sub); }
+.team-picker__name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-picker__empty { padding: 10px 8px; font-size: 13px; }

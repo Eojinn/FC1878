@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api/api';
 import Emblem from '../components/Emblem';
+import TeamPicker from '../components/TeamPicker';
 import TacticPitch from '../components/TacticPitch';
 import { useAsync } from '../hooks/useAsync';
 import { useHistory } from '../hooks/useHistory';
@@ -380,12 +381,11 @@ export default function TacticBoardPage() {
               ))}
             </div>
 
-            <label className="field"><span>팀</span>
-              <select value={team.teamId ?? ''} onChange={(e) => chooseTeam(panelSide, e.target.value)}>
-                <option value="">팀 선택 안 함 ({panelSide === 'home' ? '홈' : '원정'})</option>
-                {(teams ?? []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </label>
+            <div className="field"><span>팀</span>
+              <TeamPicker key={panelSide} teams={teams ?? []} value={team.teamId}
+                          onChange={(id) => chooseTeam(panelSide, id ?? '')}
+                          emptyLabel={`팀 선택 안 함 (${panelSide === 'home' ? '홈' : '원정'})`} />
+            </div>
 
             <label className="field"><span>포메이션</span>
               <select value={team.formation} onChange={(e) => changeFormation(panelSide, e.target.value)}>
