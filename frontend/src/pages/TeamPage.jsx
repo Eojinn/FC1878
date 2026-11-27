@@ -95,7 +95,7 @@ export default function TeamPage() {
               </div>
               <div className="team-hero__links">
                 <Link to={`/fixtures?team=${t.id}`} className="btn btn--ghost btn--sm">전체 경기일정</Link>
-                <Link to="/tacticboard" className="btn btn--ghost btn--sm">전술판에서 보기</Link>
+                <Link to={`/tacticboard?team=${t.id}`} className="btn btn--ghost btn--sm">전술판에서 보기</Link>
               </div>
             </section>
 

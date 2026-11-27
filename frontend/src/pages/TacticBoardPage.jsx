@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import Emblem from '../components/Emblem';
 import TeamPicker from '../components/TeamPicker';
@@ -155,6 +156,7 @@ export default function TacticBoardPage() {
   const svgRef = useRef(null);
   const wrapRef = useRef(null);
   const { data: teams } = useAsync(() => api.teams(), []);
+  const [params, setParams] = useSearchParams();
 
   // 판은 이 브라우저에 자동 저장 (새로고침해도 유지)
   useEffect(() => {
@@ -200,6 +202,23 @@ export default function TacticBoardPage() {
     }));
     loadSquad(side, t?.id ?? null, true);
   };
+
+  // 팀 페이지의 "전술판에서 보기"(/tacticboard?team=3) → 그 팀을 홈 쪽에 불러와서 보여줌
+  useEffect(() => {
+    const want = params.get('team');
+    if (!want || !teams) return;
+    const t = teams.find((x) => String(x.id) === want);
+    if (t) {
+      chooseTeam('home', t.id);
+      set((b) => ({ ...b, show: 'home' }));
+      setPanelSide('home');
+      setSideTab('team');
+      setNotice(`${t.name} 선수단을 불러왔어요. 상대 팀도 보려면 왼쪽 '피치에 보이기'에서 '두 팀'을 누르세요.`);
+    }
+    // 새로고침해도 다시 불러오지 않게 주소에서 ?team= 을 지움
+    setParams((p) => { p.delete('team'); return p; }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teams, params]);
 
   const pickMatch = (f) => {
     setSelected(null);
