@@ -83,7 +83,8 @@ public final class FootballDataDtos {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Score(String duration, Goals fullTime, Goals regularTime, Goals extraTime, Goals penalties) {
+    /** winner: HOME_TEAM · AWAY_TEAM · DRAW (승부차기까지 반영된 최종 승자) */
+    public record Score(String duration, Goals fullTime, Goals regularTime, Goals extraTime, Goals penalties, String winner) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

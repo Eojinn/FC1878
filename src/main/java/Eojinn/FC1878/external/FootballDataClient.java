@@ -64,6 +64,21 @@ public class FootballDataClient {
         }
     }
 
+    /** 대회의 이번 시즌 끝난 경기 전부 (요청 1회, 최근 5경기 계산용). 실패하면 빈 목록 */
+    public List<Match> finishedMatches(String competitionCode) {
+        throttle();
+        try {
+            MatchesResponse res = restClient.get()
+                    .uri(u -> u.path("/competitions/{code}/matches").queryParam("status", "FINISHED").build(competitionCode))
+                    .retrieve()
+                    .body(MatchesResponse.class);
+            return res == null || res.matches() == null ? List.of() : res.matches();
+        } catch (RestClientResponseException e) {
+            logError("finished matches " + competitionCode, e);
+            return List.of();
+        }
+    }
+
     /** 대회 순위표. 실패하면 null */
     public StandingsResponse standings(String competitionCode) {
         throttle();

@@ -60,6 +60,11 @@ public class Standing extends BaseTimeEntity {
         this.form = form;
     }
 
+    /** 리그 최근 5경기 (직접 계산한 값으로 덮어씀) */
+    public void changeForm(String form) {
+        this.form = form;
+    }
+
     public int getGoalDiff() {
         return goalsFor - goalsAgainst;
     }

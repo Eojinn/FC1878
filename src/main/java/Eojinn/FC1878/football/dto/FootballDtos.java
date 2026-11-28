@@ -18,9 +18,10 @@ public final class FootballDtos {
         }
     }
 
-    public record TeamResponse(Long id, String name, String logoUrl) {
+    /** form: 최근 5경기 승무패 "WDLWW" (왼쪽이 오래된 경기, 없으면 null) */
+    public record TeamResponse(Long id, String name, String logoUrl, String form) {
         public static TeamResponse from(Team t) {
-            return new TeamResponse(t.getId(), t.getDisplayName(), t.getLogoUrl());
+            return new TeamResponse(t.getId(), t.getDisplayName(), t.getLogoUrl(), t.getRecentForm());
         }
     }
 

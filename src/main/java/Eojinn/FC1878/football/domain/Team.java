@@ -31,6 +31,10 @@ public class Team extends BaseTimeEntity {
     @Column(length = 500)
     private String searchNames;
 
+    /** 최근 5경기 승무패 "WDLWW" (모든 대회, 왼쪽이 오래된 경기) */
+    @Column(length = 10)
+    private String recentForm;
+
     public static Team of(Integer externalId, String name, String logoUrl) {
         Team t = new Team();
         t.externalId = externalId;
@@ -40,6 +44,10 @@ public class Team extends BaseTimeEntity {
 
     public void changeKoreanName(String koreanName) {
         this.koreanName = koreanName;
+    }
+
+    public void changeRecentForm(String recentForm) {
+        this.recentForm = recentForm;
     }
 
     public void changeSearchNames(String searchNames) {

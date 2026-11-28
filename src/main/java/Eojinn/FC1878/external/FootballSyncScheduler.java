@@ -27,6 +27,7 @@ public class FootballSyncScheduler {
     private static final long STANDINGS_GAP_MS = 500; // 실제 간격은 FootballDataClient 가 6.5초씩 지켜 줌
 
     private final FootballSyncService syncService;
+    private final FootballDataClient client;
     private final PredictionService predictionService;
     private final FixtureRepository fixtureRepository;
     private final FootballApiProperties props;
@@ -44,12 +45,17 @@ public class FootballSyncScheduler {
         settleFinished();
     }
 
-    /** 서버 시작 20초 뒤 1회, 이후 3시간마다 순위표 동기화 (대회 수만큼 요청) */
+    /**
+     * 서버 시작 20초 뒤 1회, 이후 3시간마다 순위표 + 최근 5경기 동기화
+     * (대회마다 순위표 1회 + 끝난 경기 1회 요청 → 6개 대회면 12회, 요청 간격은 FootballDataClient 가 지켜 줌)
+     */
     @Scheduled(initialDelay = 20_000, fixedDelayString = "${football.api.standings-sync-ms:10800000}")
     public void syncStandings() {
+        java.util.Map<String, java.util.List<FootballDataDtos.Match>> finished = new java.util.LinkedHashMap<>();
         for (String code : props.competitions()) {
             try {
                 syncService.syncStandings(code);
+                finished.put(code, client.finishedMatches(code));
                 Thread.sleep(STANDINGS_GAP_MS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -59,6 +65,12 @@ public class FootballSyncScheduler {
             }
         }
         log.info("순위표 동기화 완료: {}", props.competitions());
+        try {
+            int n = syncService.syncForms(finished);
+            log.info("최근 5경기 계산 완료: 팀 {}개", n);
+        } catch (Exception e) {
+            log.error("최근 5경기 계산 실패", e);
+        }
     }
 
     private void settleFinished() {

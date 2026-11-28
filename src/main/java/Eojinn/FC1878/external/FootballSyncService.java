@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.*;
 
 /** football-data.org 데이터를 DB에 upsert 하고, 변경된 경기는 WebSocket 으로 푸시 */
 @Slf4j
@@ -104,6 +104,86 @@ public class FootballSyncService {
                         row.goalsFor(), row.goalsAgainst(), row.points(), normalizeForm(row.form()));
             }
         }
+    }
+
+    /**
+     * 최근 5경기 승무패 계산 (football-data 무료 순위표는 form 이 비어 있어서 끝난 경기로 직접 계산).
+     * - 팀: 모든 대회를 합친 최근 5경기 → team.recent_form (경기일정·경기 상세에 표시)
+     * - 순위표: 그 리그 경기만의 최근 5경기 → standing.form
+     * 결과는 왼쪽이 오래된 경기, 오른쪽이 가장 최근 경기.
+     *
+     * @param finishedByCompetition 대회 코드 → 이번 시즌 끝난 경기
+     */
+    @Transactional
+    public int syncForms(Map<String, List<Match>> finishedByCompetition) {
+        Map<Integer, List<Result>> all = new HashMap<>();
+        for (Map.Entry<String, List<Match>> e : finishedByCompetition.entrySet()) {
+            Map<Integer, List<Result>> inLeague = new HashMap<>();
+            Integer leagueExtId = null;
+            Integer season = null;
+            for (Match m : e.getValue()) {
+                if (m.homeTeam() == null || m.awayTeam() == null || m.homeTeam().id() == null
+                        || m.awayTeam().id() == null || m.utcDate() == null) continue;
+                char home = resultOf(m.score(), true);
+                if (home == 0) continue;
+                char away = home == 'W' ? 'L' : home == 'L' ? 'W' : 'D';
+                for (Map<Integer, List<Result>> target : List.of(all, inLeague)) {
+                    target.computeIfAbsent(m.homeTeam().id(), k -> new ArrayList<>()).add(new Result(m.utcDate(), home));
+                    target.computeIfAbsent(m.awayTeam().id(), k -> new ArrayList<>()).add(new Result(m.utcDate(), away));
+                }
+                if (m.competition() != null) leagueExtId = m.competition().id();
+                if (m.season() != null && m.season().startYear() != null) season = m.season().startYear();
+            }
+            // 순위표의 최근 5경기 (그 리그 경기만)
+            League league = leagueExtId == null ? null : leagueRepository.findByExternalId(leagueExtId).orElse(null);
+            if (league != null && season != null) {
+                for (Map.Entry<Integer, List<Result>> t : inLeague.entrySet()) {
+                    Team team = teamRepository.findByExternalId(t.getKey()).orElse(null);
+                    if (team == null) continue;
+                    String form = lastFive(t.getValue());
+                    standingRepository.findByLeagueIdAndSeasonAndTeamId(league.getId(), season, team.getId())
+                            .ifPresent(s -> s.changeForm(form));
+                }
+            }
+        }
+        // 팀의 최근 5경기 (모든 대회)
+        int n = 0;
+        for (Map.Entry<Integer, List<Result>> t : all.entrySet()) {
+            Team team = teamRepository.findByExternalId(t.getKey()).orElse(null);
+            if (team == null) continue;
+            team.changeRecentForm(lastFive(t.getValue()));
+            n++;
+        }
+        return n;
+    }
+
+    private record Result(java.time.OffsetDateTime at, char wdl) {
+    }
+
+    /** 날짜순으로 정렬해 마지막 5경기 → "WDLWW" (왼쪽이 오래된 경기) */
+    private static String lastFive(List<Result> results) {
+        List<Result> sorted = new ArrayList<>(results);
+        sorted.sort(Comparator.comparing(Result::at));
+        StringBuilder sb = new StringBuilder();
+        for (Result r : sorted.subList(Math.max(0, sorted.size() - 5), sorted.size())) sb.append(r.wdl());
+        return sb.toString();
+    }
+
+    /** 홈 팀 기준 승(W)·무(D)·패(L). 승부차기까지 반영된 winner 를 먼저 보고, 없으면 최종 스코어로. 알 수 없으면 0 */
+    private static char resultOf(Score s, boolean home) {
+        if (s == null) return 0;
+        if (s.winner() != null) {
+            return switch (s.winner()) {
+                case "HOME_TEAM" -> home ? 'W' : 'L';
+                case "AWAY_TEAM" -> home ? 'L' : 'W';
+                case "DRAW" -> 'D';
+                default -> 0;
+            };
+        }
+        Goals g = s.fullTime();
+        if (g == null || g.home() == null || g.away() == null) return 0;
+        int diff = home ? g.home() - g.away() : g.away() - g.home();
+        return diff > 0 ? 'W' : diff < 0 ? 'L' : 'D';
     }
 
     // ---------- 변환 ----------

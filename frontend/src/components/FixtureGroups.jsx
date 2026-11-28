@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { hhmm, roundLabel } from '../utils/format';
 import Emblem from './Emblem';
+import FormDots from './FormDots';
 
 function statusOf(f) {
   if (f.status === 'LIVE') return { time: `${f.elapsed ?? ''}'`, tag: 'LIVE', cls: 'tag--live', live: true };
@@ -31,13 +32,19 @@ export default function FixtureGroups({ groups }) {
           <Link to={`/fixtures/${f.id}`} className="fixture-row" key={f.id}>
             <span className={'fixture-row__time' + (st.live ? ' is-live' : '')}>{st.time}</span>
             <span className="fixture-row__team is-home">
-              <span className="ellipsis">{f.home.name}</span>
+              <span className="fixture-row__name">
+                <span className="ellipsis">{f.home.name}</span>
+                <FormDots form={f.home.form} size="sm" />
+              </span>
               <Emblem src={f.home.logoUrl} name={f.home.name} size={26} />
             </span>
             <span className="fixture-row__score">{score(f)}</span>
             <span className="fixture-row__team">
               <Emblem src={f.away.logoUrl} name={f.away.name} size={26} />
-              <span className="ellipsis">{f.away.name}</span>
+              <span className="fixture-row__name">
+                <span className="ellipsis">{f.away.name}</span>
+                <FormDots form={f.away.form} size="sm" />
+              </span>
             </span>
             <span className={'tag ' + st.cls}>{st.tag}</span>
           </Link>

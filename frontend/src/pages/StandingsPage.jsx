@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api/api';
 import Emblem from '../components/Emblem';
+import FormDots from '../components/FormDots';
 import StateBox from '../components/StateBox';
 import { useAsync } from '../hooks/useAsync';
 import { useLeagues } from '../hooks/useLeagues';
@@ -28,7 +29,7 @@ export default function StandingsPage() {
         <StateBox loading={loading} error={error} empty={!data?.length} emptyText="순위 정보가 아직 없어요.">
           <table className="table">
             <thead>
-              <tr><th>#</th><th className="left">팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th><th>최근 5경기</th></tr>
+              <tr><th>#</th><th className="left">팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th><th title="왼쪽이 오래된 경기, 오른쪽이 가장 최근 경기">최근 5경기</th></tr>
             </thead>
             <tbody>
               {data?.map((s) => (
@@ -38,13 +39,7 @@ export default function StandingsPage() {
                   <td>{s.played}</td><td>{s.win}</td><td>{s.draw}</td><td>{s.lose}</td>
                   <td>{s.goalDiff > 0 ? `+${s.goalDiff}` : s.goalDiff}</td>
                   <td><strong className="num">{s.points}</strong></td>
-                  <td>
-                    <span className="form-dots">
-                      {(s.form || '').split('').map((c, i) => (
-                        <span key={i} className={'form__dot form__dot--' + c}>{{ W: '승', D: '무', L: '패' }[c] || c}</span>
-                      ))}
-                    </span>
-                  </td>
+                  <td><FormDots form={s.form} /></td>
                 </tr>
               ))}
             </tbody>
