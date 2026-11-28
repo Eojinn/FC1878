@@ -8,6 +8,7 @@ import { useAsync } from '../hooks/useAsync';
 import { useHistory } from '../hooks/useHistory';
 import { POSITION_LABEL } from '../utils/countries';
 import { dateTabs, hhmm } from '../utils/format';
+import { positionNumber, slotNumbers } from '../utils/positionNumber';
 import { FORMATIONS, PITCH_H, PITCH_W, arrange, formationSlots, placeholderPlayers } from '../utils/formations';
 
 const STORAGE_KEY = 'fc1878.tacticboard.v1';
@@ -32,6 +33,7 @@ function newTeam(side, formation, color, gkColor) {
 
 function initialBoard() {
   return {
+    numbering: 'position',
     show: 'both',
     teams: { home: newTeam('home', '4-3-3', '#D7263D', '#F2C94C'), away: newTeam('away', '4-4-2', '#2F6FEB', '#3DDC97') },
     ball: { x: PITCH_W / 2, y: PITCH_H / 2 },
@@ -42,12 +44,21 @@ function initialBoard() {
 function loadBoard() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved?.teams?.home?.players && saved?.teams?.away?.players && Array.isArray(saved.drawings)) return saved;
+    if (saved?.teams?.home?.players && saved?.teams?.away?.players && Array.isArray(saved.drawings)) {
+      if (saved.numbering === 'position') return saved;
+      // 예전에 저장한 판은 실제 등번호가 들어 있어서, 한 번만 자리별 포지션 번호로 바꿈
+      const renumber = (team) => {
+        const nums = slotNumbers(team.formation);
+        return { ...team, players: team.players.map((p, i) => ({ ...p, number: nums[i] ?? p.number })) };
+      };
+      return { ...saved, numbering: 'position', teams: { home: renumber(saved.teams.home), away: renumber(saved.teams.away) } };
+    }
   } catch { /* 저장된 게 없거나 깨졌으면 새 판 */ }
   return initialBoard();
 }
 
-const fromSquad = (p) => ({ key: `s${p.id}`, name: p.name, number: p.number, role: p.role });
+// 등번호는 피치에 놓일 때 자리 번호로 정해짐 (arrange · 교체)
+const fromSquad = (p) => ({ key: `s${p.id}`, name: p.name, role: p.role });
 
 /** 스쿼드에서 포메이션에 맞게 11명 고르기 (포지션별 등번호 순). 실제 선발과는 다를 수 있음 */
 function pickLineup(squad, formation) {
@@ -258,7 +269,8 @@ export default function TacticBoardPage() {
     }
     const incoming = fromSquad(squadPlayer);
     updateTeam(selected.side, (team) => ({
-      ...team, players: team.players.map((p) => (p.key === selected.key ? { ...p, ...incoming } : p)),
+      // 들어온 선수는 나간 선수 자리의 번호를 그대로 받음
+      ...team, players: team.players.map((p) => (p.key === selected.key ? { ...p, ...incoming, number: p.number } : p)),
     }));
     setSelected({ side: selected.side, key: incoming.key });
   };
@@ -489,7 +501,7 @@ export default function TacticBoardPage() {
                     {list.map((p) => (
                       <button key={p.id} type="button" className="tb-bench__player" onClick={() => substitute(p)}
                               title={selectedPlayer ? `${selectedPlayer.name || selectedPlayer.number} 대신 투입` : '피치에서 선수를 먼저 누르세요'}>
-                        <span className="num tb-bench__num">{p.number ?? '-'}</span>
+                        <span className="num tb-bench__num">{positionNumber(p.position, p.role) ?? '-'}</span>
                         <span className="tb-bench__name">{p.name}</span>
                         <span className="muted small">{p.position}</span>
                       </button>

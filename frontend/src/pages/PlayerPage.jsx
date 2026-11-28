@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
+import { positionNumber } from '../utils/positionNumber';
 import { api } from '../api/api';
 import CareerSection from '../components/CareerSection';
 import Emblem from '../components/Emblem';
@@ -26,7 +27,7 @@ export default function PlayerPage() {
         {p && (
           <>
             <section className="card player-hero">
-              <span className={'player-hero__num num'} aria-label="등번호">{p.number ?? '-'}</span>
+              <span className={'player-hero__num num'} aria-label="포지션 대표 번호">{positionNumber(p.position, p.role) ?? '-'}</span>
               <div className="player-hero__main">
                 <span className={'pos-badge pos-badge--' + p.role}>{p.role}</span>
                 <h1 className="h1">{p.koreanName ?? career.data?.koreanName ?? p.name}</h1>

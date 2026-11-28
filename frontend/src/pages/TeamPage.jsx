@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { positionNumber } from '../utils/positionNumber';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/api';
 import Emblem from '../components/Emblem';
@@ -175,8 +176,8 @@ export default function TeamPage() {
                           <tbody key={role}>
                             {role !== 'ALL' && <tr className="squad-table__group"><th colSpan={7} className="left">{POSITION_LABEL[role]}</th></tr>}
                             {rows.map((p) => (
-                              <tr key={`${p.name}-${p.number}`}>
-                                <td className="num muted">{p.number ?? '-'}</td>
+                              <tr key={`${p.name}-${p.playerId ?? ''}`}>
+                                <td className="num muted">{positionNumber(p.position, p.role) ?? '-'}</td>
                                 <td className="left">
                                   <span className="squad-player">
                                     <span className={'pos-badge pos-badge--' + p.role}>{p.role}</span>

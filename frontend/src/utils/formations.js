@@ -3,6 +3,8 @@
  * 피치 크기는 실제 규격처럼 가로 105, 세로 68 (단위: m).
  * 홈은 왼쪽 → 오른쪽으로 공격, 원정은 180도 돌려서 오른쪽 → 왼쪽으로 공격.
  */
+import { slotNumbers } from './positionNumber';
+
 export const PITCH_W = 105;
 export const PITCH_H = 68;
 
@@ -53,16 +55,19 @@ export function arrange(side, formation, players) {
   slots.forEach((slot, i) => {
     if (!taken[i] && pool.length) taken[i] = pool.shift();
   });
+  // 등번호는 실제 번호 대신 그 자리의 포지션 대표 번호 (4-3-3 이면 1·2·3·4·5 …)
+  const numbers = slotNumbers(formation);
   return slots.map((slot, i) => {
-    const p = taken[i] ?? { key: `${side}-empty-${i}`, name: '', number: i + 1, role: slot.role };
-    return { ...p, slotRole: slot.role, ...slotPosition(side, slot) };
+    const p = taken[i] ?? { key: `${side}-empty-${i}`, name: '', role: slot.role };
+    return { ...p, number: numbers[i], slotRole: slot.role, ...slotPosition(side, slot) };
   });
 }
 
-/** 스쿼드가 없을 때 쓰는 번호만 있는 선수 11명 */
+/** 스쿼드가 없을 때 쓰는 번호만 있는 선수 11명 (번호는 포지션 대표 번호) */
 export function placeholderPlayers(side, formation) {
+  const numbers = slotNumbers(formation);
   return formationSlots(formation).map((slot, i) => ({
-    key: `${side}-p${i + 1}`, name: '', number: i + 1, role: slot.role,
+    key: `${side}-p${i + 1}`, name: '', number: numbers[i], role: slot.role,
   }));
 }
 
